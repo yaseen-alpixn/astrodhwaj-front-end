@@ -41,7 +41,7 @@ export default function Navbar({ overlay = false }: NavbarProps) {
             className="h-10 w-10 rounded-full sm:h-[50px] sm:w-[50px]"
             unoptimized
           />
-          <span className="text-lg sm:text-2xl">AstroConnect</span>
+          <span className="text-lg sm:text-2xl">AstroDwaj</span>
         </Link>
 
         {/* Desktop Nav */}
