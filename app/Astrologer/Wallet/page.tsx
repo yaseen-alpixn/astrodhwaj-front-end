@@ -35,7 +35,7 @@ export default function WalletPage() {
       {/* Top Section */}
       <div className="flex flex-col gap-6 xl:flex-row xl:items-start">
         {/* Wallet Card */}
-        <section className="rounded-xl bg-gradient-to-r from-[#0180D5] to-[#0040C1] p-5 shadow-md xl:flex-[2] lg:h-[210px]">
+        <section className="rounded-xl bg-gradient-to-r from-[#0180D5] to-[#0040C1] p-5 xl:w-3/4 shadow-md  lg:h-[210px]">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-white">
