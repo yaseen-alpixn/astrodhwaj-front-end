@@ -42,7 +42,7 @@ const sidebarItems: SidebarItem[] = [
   },
   {
     href: "/User/TarotReading",
-    src: "/images/list.png",
+    src: "/images/List.png",
     label: "Tarot Reading",
   },
   {
