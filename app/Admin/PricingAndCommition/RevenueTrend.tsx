@@ -1,60 +1,26 @@
+"use client";
+
 // components/pricing/RevenueTrend.tsx
 import { Calendar } from "lucide-react";
+import { useEffect, useState } from "react";
+import { adminApi, formatCurrency, titleCase } from "../api";
+
+type Trend = {
+  month: string;
+  total: number;
+  services: Record<string, number>;
+};
+
+const colors = ["from-blue-600 to-blue-400", "from-green-500 to-yellow-400", "from-yellow-400 to-red-500", "from-[#4898E1] to-[#4898E1]/80"];
 
 export default function RevenueTrend() {
-  const months = [
-    {
-      name: "Oct 2026",
-      data: [
-        { label: "Audio Call", value: 31, color: "from-blue-600 to-blue-400" },
-        {
-          label: "Video Call",
-          value: 21,
-          color: "from-green-500 to-yellow-400",
-        },
-        {
-          label: "Live Streams",
-          value: 45,
-          color: "from-yellow-400 to-red-500",
-        },
-        { label: "Chat", value: 3, color: "from-[#4898E1] to-[#4898E1]/80" },
-      ],
-    },
-    {
-      name: "Nov 2026",
-      data: [
-        { label: "Audio Call", value: 31, color: "from-blue-600 to-blue-400" },
-        {
-          label: "Video Call",
-          value: 21,
-          color: "from-green-500 to-yellow-400",
-        },
-        {
-          label: "Live Streams",
-          value: 45,
-          color: "from-yellow-400 to-red-500",
-        },
-        { label: "Chat", value: 3, color: "from-[#4898E1] to-[#4898E1]/80" },
-      ],
-    },
-    {
-      name: "Dec 2026",
-      data: [
-        { label: "Audio Call", value: 31, color: "from-blue-600 to-blue-400" },
-        {
-          label: "Video Call",
-          value: 21,
-          color: "from-green-500 to-yellow-400",
-        },
-        {
-          label: "Live Streams",
-          value: 45,
-          color: "from-yellow-400 to-red-500",
-        },
-        { label: "Chat", value: 3, color: "from-[#4898E1] to-[#4898E1]/80" },
-      ],
-    },
-  ];
+  const [months, setMonths] = useState<Trend[]>([]);
+
+  useEffect(() => {
+    adminApi<Trend[]>("/admin/pricing/trends")
+      .then((response) => setMonths(response.data || []))
+      .catch(() => setMonths([]));
+  }, []);
 
   return (
     <div className="mt-6 bg-white rounded-[10px] p-5 shadow-sm">
@@ -71,9 +37,7 @@ export default function RevenueTrend() {
             <button
               key={i}
               className={`h-[31px] rounded-[5px] px-[10px] py-[5px] md:w-[120px] ${
-                t === "Last 3 Months"
-                  ? "bg-[#4898E1] text-white"
-                  : "bg-gray-100"
+                t === "Last 3 Months" ? "bg-[#4898E1] text-white" : "bg-gray-100"
               }`}
             >
               {t}
@@ -82,38 +46,41 @@ export default function RevenueTrend() {
         </div>
       </div>
 
-      {months.map((month, i) => (
-        <div key={i} className="mt-6">
-          {/* Header */}
-          <div className="flex justify-between items-center">
-            <div className="flex items-center gap-2 text-[17px] font-medium">
-              <Calendar size={18} />
-              {month.name}
-            </div>
-            <span className="font-medium">₹400K</span>
-          </div>
-
-          {/* Segmented Gradient Bar */}
-          <div className="mt-3 flex h-[32px] w-full rounded-md overflow-hidden">
-            {month.data.map((item, idx) => (
-              <div
-                key={idx}
-                style={{ width: `${item.value}%` }}
-                className={`flex items-center justify-center text-white text-[14px] font-medium bg-gradient-to-r ${item.color}`}
-              >
-                {item.value}%
+      {months.map((month, i) => {
+        const services = Object.entries(month.services || {});
+        return (
+          <div key={i} className="mt-6">
+            <div className="flex justify-between items-center">
+              <div className="flex items-center gap-2 text-[17px] font-medium">
+                <Calendar size={18} />
+                {month.month}
               </div>
-            ))}
-          </div>
+              <span className="font-medium">{formatCurrency(month.total)}</span>
+            </div>
 
-          {/* Labels */}
-          <div className="mt-2 grid grid-cols-1 gap-1 text-[14px] text-gray-500 sm:grid-cols-2 lg:grid-cols-4">
-            {month.data.map((item, idx) => (
-              <span key={idx}>{item.label}: ₹120K</span>
-            ))}
+            <div className="mt-3 flex h-[32px] w-full rounded-md overflow-hidden">
+              {services.map(([label, value], idx) => {
+                const percent = month.total ? Math.max(4, (value / month.total) * 100) : 0;
+                return (
+                  <div
+                    key={label}
+                    style={{ width: `${percent}%` }}
+                    className={`flex items-center justify-center text-white text-[14px] font-medium bg-gradient-to-r ${colors[idx % colors.length]}`}
+                  >
+                    {Math.round(percent)}%
+                  </div>
+                );
+              })}
+            </div>
+
+            <div className="mt-2 grid grid-cols-1 gap-1 text-[14px] text-gray-500 sm:grid-cols-2 lg:grid-cols-4">
+              {services.map(([label, value]) => (
+                <span key={label}>{titleCase(label)}: {formatCurrency(value)}</span>
+              ))}
+            </div>
           </div>
-        </div>
-      ))}
+        );
+      })}
     </div>
   );
 }

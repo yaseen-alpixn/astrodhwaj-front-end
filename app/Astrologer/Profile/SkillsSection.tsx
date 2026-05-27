@@ -1,5 +1,5 @@
-export default function SkillsSection() {
-  const skills = ["Palmistry", "Vastu", "Tarot", "Astrology"];
+export default function SkillsSection({ expertise }: { expertise?: string[] }) {
+  const skills = expertise && expertise.length > 0 ? expertise : ["Palmistry", "Vastu", "Tarot", "Astrology"];
 
   return (
     <div className="space-y-2">

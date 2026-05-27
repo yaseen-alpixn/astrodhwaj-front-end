@@ -1,11 +1,12 @@
 // components/user/StatusBadge.tsx
-type BadgeStatus = "Approved" | "Pending" | "Rejected" | "Completed" | "Closed";
+type BadgeStatus = "Approved" | "Pending" | "Rejected" | "Completed" | "Closed" | string;
 
 type StatusBadgeProps = {
   status: BadgeStatus;
 };
 
 export default function StatusBadge({ status }: StatusBadgeProps) {
+  const label = status ? status.replace(/_/g, " ").replace(/\b\w/g, (char) => char.toUpperCase()) : "Pending";
   const styles = {
     Approved: "bg-green-100 text-green-600",
     Pending: "bg-yellow-100 text-yellow-600",
@@ -16,9 +17,9 @@ export default function StatusBadge({ status }: StatusBadgeProps) {
 
   return (
     <span
-      className={`px-[10px] py-[5px] rounded-full text-sm ${styles[status]}`}
+      className={`px-[10px] py-[5px] rounded-full text-sm ${styles[label as keyof typeof styles] || styles.Pending}`}
     >
-      {status}
+      {label}
     </span>
   );
 }

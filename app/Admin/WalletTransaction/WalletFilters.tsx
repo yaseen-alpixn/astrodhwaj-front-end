@@ -1,6 +1,13 @@
 import { Search } from "lucide-react";
 
-export default function WalletFilters() {
+type Props = {
+  search?: string;
+  type?: string;
+  onSearchChange?: (value: string) => void;
+  onTypeChange?: (value: string) => void;
+};
+
+export default function WalletFilters({ search = "", type = "All", onSearchChange, onTypeChange }: Props) {
   const tabs = ["All", "Recharge", "Consultations", "Withdrawals"];
 
   return (
@@ -14,6 +21,8 @@ export default function WalletFilters() {
 
         <input
           placeholder="Search by user ID, order..."
+          value={search}
+          onChange={(event) => onSearchChange?.(event.target.value)}
           className="w-full h-[44px] pl-10 pr-4 rounded-lg border text-sm md:text-[15px] focus:outline-none focus:ring-2 focus:ring-[#4898E1]"
         />
       </div>
@@ -23,8 +32,9 @@ export default function WalletFilters() {
         {tabs.map((tab, i) => (
           <button
             key={i}
+            onClick={() => onTypeChange?.(tab)}
             className={`px-4 py-2 rounded-lg text-sm md:text-[14px] whitespace-nowrap transition-all ${
-              tab === "All"
+              tab === type
                 ? "bg-[#4898E1] text-white"
                 : "bg-gray-100 text-gray-600 hover:bg-gray-200"
             }`}

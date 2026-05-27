@@ -58,7 +58,7 @@ export default function PaymentCard({
 
         {/* Footer */}
         <p className="mt-6 text-center text-[12px] font-normal text-gray-400">
-          Secure Payment Powered By AstroConnect
+          Secure Payment Powered By AstroDhwaj
         </p>
       </div>
     </div>

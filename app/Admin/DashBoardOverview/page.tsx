@@ -2,139 +2,137 @@
 "use client";
 import Image from "next/image";
 import Link from "next/link";
+import { useEffect, useMemo, useState } from "react";
 
 import {
   ChevronDown,
   ArrowUpRight,
   ArrowDownRight,
   Phone,
-  Video,
-  MessageCircle,
+  Users,
+  Star,
+  Radio,
+  IndianRupee,
+  CreditCard,
 } from "lucide-react";
 import AdminTopHeader from "../CommonComponents/AdminTopHeader";
+import { adminApi, formatCurrency } from "../api";
+
+type DashboardData = {
+  stats: Record<string, number | undefined>;
+  charts?: { revenue_trend?: { date: string; revenue: number; transactions?: number }[] };
+  recent_transactions?: {
+    id: string;
+    order_id?: string;
+    transaction_type?: string;
+    amount: number;
+    status: string;
+    metadata?: { user_name?: string; astrologer_name?: string };
+  }[];
+};
+
+type LiveSessionData = {
+  id: string;
+  title: string;
+  status: string;
+  revenue?: number;
+  metadata?: { astrologer_name?: string; duration_minutes?: number };
+};
 
 export default function Page() {
-  const stats = [
+  const [dashboard, setDashboard] = useState<DashboardData>({ stats: {} });
+  const [activity, setActivity] = useState<{ hour: number; sessions: number; viewers: number }[]>([]);
+  const [sessions, setSessions] = useState<LiveSessionData[]>([]);
+  const [growth, setGrowth] = useState<{ month: string; users: number }[]>([]);
+  const [selectedDays, setSelectedDays] = useState(7);
+  const [selectedActivityMode, setSelectedActivityMode] = useState("audio_call");
+
+  useEffect(() => {
+    adminApi<DashboardData>(`/admin/dashboard?days=${selectedDays}`).then((response) => setDashboard(response.data)).catch(() => undefined);
+  }, [selectedDays]);
+
+  useEffect(() => {
+    adminApi<{ hour: number; sessions: number; viewers: number }[]>(`/admin/dashboard/activity?mode=${selectedActivityMode}`).then((response) => setActivity(response.data || [])).catch(() => undefined);
+  }, [selectedActivityMode]);
+
+  useEffect(() => {
+    adminApi<LiveSessionData[]>("/admin/dashboard/active-sessions").then((response) => setSessions(response.data || [])).catch(() => undefined);
+    adminApi<{ month: string; users: number }[]>("/admin/dashboard/user-growth").then((response) => setGrowth(response.data || [])).catch(() => undefined);
+  }, []);
+
+  const stats = useMemo(() => [
     {
       title: "Total Users",
-      value: "12,548",
-      change: "+12",
-      positive: true,
-      src: "/images/twoUsers.png",
+      value: String(dashboard.stats.total_users || 0),
+      change: `${dashboard.stats.user_growth || 0}%`,
+      positive: (dashboard.stats.user_growth || 0) >= 0,
+      icon: <Users size={20} className="text-[#005DB2]" />,
     },
     {
       title: "Astrologer",
-      value: "189",
-      change: "+12.5 Active",
+      value: String(dashboard.stats.astrologers || 0),
+      change: `${dashboard.stats.pending_approvals || 0} Pending`,
       positive: true,
-
-      src: "/images/twoStar.png",
+      icon: <Star size={20} className="text-[#005DB2]" />,
     },
     {
       title: "Live Streams",
-      value: "24",
-      change: "+12.5",
+      value: String(dashboard.stats.total_live_streams || 0),
+      change: `${dashboard.stats.active_sessions || 0} Active`,
       positive: true,
-      src: "/images/twoServer.png",
+      icon: <Radio size={20} className="text-[#005DB2]" />,
     },
     {
       title: "Revenue",
-      value: "₹4,85,320",
-      change: "+12.5 Today",
-      positive: true,
-      src: "/images/twoWallet.png",
+      value: formatCurrency(dashboard.stats.revenue),
+      change: `${dashboard.stats.revenue_growth || 0}%`,
+      positive: (dashboard.stats.revenue_growth || 0) >= 0,
+      icon: <IndianRupee size={20} className="text-[#005DB2]" />,
     },
     {
       title: "Withdrawals",
-      value: "₹2,45,000",
-      change: "-2.5 Pending",
+      value: formatCurrency(dashboard.stats.withdrawals || 0),
+      change: `${dashboard.stats.pending_withdrawals || 0} Pending`,
       positive: false,
-      src: "/images/twoWithdraw (1).png",
+      icon: <CreditCard size={20} className="text-[#005DB2]" />,
     },
-  ];
+  ], [dashboard.stats]);
 
-  const bars = [
-    10, 18, 12, 30, 14, 46, 25, 36, 14, 46, 70, 40, 58, 12, 40, 58, 64, 40, 58,
-    28, 46,
-  ];
-
-  const revenue = [
-    ["Monday", 80],
-    ["Tuesday", 90],
-    ["Wednesday", 58],
-    ["Thursday", 30],
-    ["Friday", 68],
-    ["Saturday", 12],
-  ];
-
-  const growth = [
-    ["January", 60],
-    ["February", 82],
-    ["March", 42],
-    ["April", 67],
-    ["May", 90],
-    ["June", 48],
-  ];
-
-  const sessions = [
-    {
-      type: "Audio Call",
-      color: "bg-blue-100 text-blue-700",
-      icon: <Phone size={12} />,
-    },
-    {
-      type: "Video Call",
-      color: "bg-green-100 text-green-700",
-      icon: <Video size={12} />,
-    },
-    {
-      type: "Audio Call",
-      color: "bg-blue-100 text-blue-700",
-      icon: <Phone size={12} />,
-    },
-    {
-      type: "Chat",
-      color: "bg-yellow-100 text-yellow-700",
-      icon: <MessageCircle size={12} />,
-    },
-    {
-      type: "Audio Call",
-      color: "bg-blue-100 text-blue-700",
-      icon: <Phone size={12} />,
-    },
-    {
-      type: "Video Call",
-      color: "bg-green-100 text-green-700",
-      icon: <Video size={12} />,
-    },
-  ];
-
-  const transactions = [
-    { name: "Rahul Kumar", amount: "+₹1000", positive: true },
-    { name: "Pandit Rajesh", amount: "-₹5000", positive: false },
-    { name: "Rahul Kumar", amount: "+₹1000", positive: true },
-    { name: "Pandit Rajesh", amount: "-₹5000", positive: false },
-    { name: "Rahul Kumar", amount: "+₹1000", positive: true },
-    { name: "Pandit Rajesh", amount: "-₹5000", positive: false },
-  ];
-
+  const bars = activity.map((item) => Math.min(80, Math.max(6, item.sessions * 16 + item.viewers / 12)));
+  const revenue = dashboard.charts?.revenue_trend || [];
+  const maxRevenue = Math.max(...revenue.map((item) => item.revenue), 1);
+  const maxGrowth = Math.max(...growth.map((item) => item.users), 1);
+  const transactions = dashboard.recent_transactions || [];
   return (
     <>
       <AdminTopHeader />
-      <main className="min-h-screen py-8 pl-5 pr-2 bg-white  font-sans">
+      <main className="min-h-screen py-8 pl-5 pr-2 bg-white font-sans">
         <div className="max-w-[1500px] mx-auto space-y-5">
           {/* Header */}
           <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
             <div>
-              <p className="text-[28px] font-semibold ">Dashboard Overview</p>
+              <p className="text-[28px] font-semibold">Dashboard Overview</p>
               <p className="text-[14px] font-medium text-gray-500">
                 Welcome back! Here&apos;s what&apos;s happening today.
               </p>
             </div>
 
-            <button className="flex h-[42px] w-full items-center justify-center rounded-lg border gap-1 shadow-sm bg-[#4898E1]/10 p-[18px] text-[14px] font-medium md:w-[170px]">
-              Last 7 Days <ChevronDown size={18} />
-            </button>
+            <div className="relative w-full md:w-[170px]">
+              <select
+                value={selectedDays}
+                onChange={(e) => setSelectedDays(Number(e.target.value))}
+                className="appearance-none flex h-[42px] w-full items-center justify-between rounded-lg border border-slate-200 bg-[#4898E1]/10 px-4 py-2 pr-8 text-[14px] font-semibold text-slate-800 outline-none cursor-pointer focus:border-[#4898E1]"
+              >
+                <option value="1">Today</option>
+                <option value="7">Last 7 Days</option>
+                <option value="30">Last 30 Days</option>
+                <option value="90">Last 90 Days</option>
+                <option value="365">All Time</option>
+              </select>
+              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-slate-600">
+                <ChevronDown size={16} />
+              </div>
+            </div>
           </div>
 
           {/* Five Cards Same Line */}
@@ -142,52 +140,32 @@ export default function Page() {
             {stats.map((item, i) => (
               <div
                 key={i}
-                className="bg-white  rounded-2xl p-3 h-[130px] shadow-sm  w-full min-w-0 flex flex-col justify-between"
+                className="bg-white rounded-2xl p-4 h-[130px] shadow-sm w-full min-w-0 flex flex-col justify-between border border-slate-100"
               >
-                <div className="flex items-center  gap-3">
-                  <div className="w-[40px] h-[40px] shrink-0 rounded-lg text-[#E8F4FF] bg-[#E8F4FF] flex items-center justify-center">
-                    <Image
-                      src={item.src}
-                      width={15}
-                      height={15}
-                      alt={item.title + " icon"}
-                      className="object-cover text-[#005DB2]"
-                    />
+                <div className="flex items-center gap-3">
+                  <div className="w-[40px] h-[40px] shrink-0 rounded-lg bg-[#E8F4FF] flex items-center justify-center">
+                    {item.icon}
                   </div>
-
-                  <p className="text-[14px] font-medium whitespace-nowrap ">
+                  <p className="text-[14px] font-semibold text-slate-800 whitespace-nowrap">
                     {item.title}
                   </p>
                 </div>
 
                 <div>
-                  <h3 className="text-[20px] font-medium truncate">
+                  <h3 className="text-[20px] font-bold text-slate-800 truncate">
                     {item.value}
                   </h3>
 
                   <div
-                    className={`mt-1 text-[14px] flex items-center gap-1 font-medium ${
+                    className={`mt-1 text-[13px] flex items-center gap-1 font-semibold ${
                       item.positive ? "text-green-600" : "text-red-500"
                     }`}
                   >
                     {item.positive ? (
-                      <Image
-                        src="/images/upwardArrow.png"
-                        width={10}
-                        height={10}
-                        alt="Upward trend arrow"
-                        className="object-cover"
-                      />
+                      <ArrowUpRight size={14} className="text-green-600" />
                     ) : (
-                      <Image
-                        src="/images/downwardArrow.png"
-                        width={10}
-                        height={10}
-                        alt="Downward trend arrow"
-                        className="object-cover"
-                      />
+                      <ArrowDownRight size={14} className="text-red-500" />
                     )}
-
                     <span className="truncate">{item.change}</span>
                   </div>
                 </div>
@@ -207,9 +185,21 @@ export default function Page() {
                 </p>
               </div>
 
-              <button className="w-[130px] h-[42px] rounded-lg border bg-white p-[18px] flex items-center  shadow-sm justify-center gap-1 text-[14px] font-medium">
-                Audio Call <ChevronDown size={18} />
-              </button>
+              <div className="relative w-[150px]">
+                <select
+                  value={selectedActivityMode}
+                  onChange={(e) => setSelectedActivityMode(e.target.value)}
+                  className="appearance-none flex h-[42px] w-full items-center justify-between rounded-lg border border-slate-200 bg-white px-4 py-2 pr-8 text-[14px] font-semibold text-slate-800 outline-none cursor-pointer focus:border-[#4898E1]"
+                >
+                  <option value="audio_call">Audio Call</option>
+                  <option value="chat_session">Chat Session</option>
+                  <option value="video_call">Video Call</option>
+                  <option value="live_session">Live Streams</option>
+                </select>
+                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-slate-600">
+                  <ChevronDown size={16} />
+                </div>
+              </div>
             </div>
 
             <div className="mt-8 h-[180px] flex items-end gap-2">
@@ -253,24 +243,24 @@ export default function Page() {
               </div>
 
               <div className="mt-6 space-y-5">
-                {revenue.map(([day, width], i) => (
+                {revenue.slice(-7).map((item, i) => (
                   <div key={i}>
                     <div className="flex justify-between mb-2">
                       <p className="text-[15px] font-medium">
-                        {day}
+                        {new Date(item.date).toLocaleDateString("en-IN", { weekday: "long" })}
                         <span className="text-gray-400 font-normal">
                           {" "}
-                          • 145 Users
+                          • {item.transactions || 0} Txns
                         </span>
                       </p>
 
-                      <p className="text-[16px] font-semibold">₹67K</p>
+                      <p className="text-[16px] font-semibold">{formatCurrency(item.revenue)}</p>
                     </div>
 
                     <div className="h-[9px] bg-gray-100 rounded-full overflow-hidden">
                       <div
                         className="h-full bg-[#4898E1] rounded-full"
-                        style={{ width: `${width}%` }}
+                        style={{ width: `${(item.revenue / maxRevenue) * 100}%` }}
                       />
                     </div>
                   </div>
@@ -296,17 +286,17 @@ export default function Page() {
               </div>
 
               <div className="mt-6 space-y-5">
-                {growth.map(([month, width], i) => (
+                {growth.map((item, i) => (
                   <div key={i}>
                     <div className="flex justify-between mb-2">
-                      <p className="text-[15px] font-medium">{month}</p>
-                      <p className="text-[16px] font-semibold">8,420 Users</p>
+                      <p className="text-[15px] font-medium">{item.month}</p>
+                      <p className="text-[16px] font-semibold">{item.users} Users</p>
                     </div>
 
                     <div className="h-[9px] bg-gray-100 rounded-full overflow-hidden">
                       <div
                         className="h-full bg-yellow-400 rounded-full"
-                        style={{ width: `${width}%` }}
+                        style={{ width: `${(item.users / maxGrowth) * 100}%` }}
                       />
                     </div>
                   </div>
@@ -323,7 +313,7 @@ export default function Page() {
                 <div>
                   <h2 className="text-[20px] font-semibold">Active Sessions</h2>
                   <p className="text-[16px] font-normal text-gray-500 mt-2">
-                    6 ongoing consultations
+                    {sessions.length} ongoing consultations
                   </p>
                 </div>
 
@@ -339,29 +329,29 @@ export default function Page() {
                   <div key={i} className="flex justify-between items-center">
                     <div className="flex gap-3 items-center">
                       <div className="w-9 h-9 rounded-full bg-gradient-to-r from-[#FFF7CC] to-[#F3E1FF] text-[#4898E1] flex items-center justify-center text-[14px] font-medium">
-                        PS
+                        {(item.metadata?.astrologer_name || "AS").slice(0, 2).toUpperCase()}
                       </div>
 
                       <div>
                         <h4 className="text-[15px] font-medium">
-                          Dr. Priya Sharma
+                          {item.metadata?.astrologer_name || "Astrologer"}
                         </h4>
                         <p className="text-[15px]  text-gray-500">
-                          With Rahul Kumar
+                          {item.title}
                         </p>
                       </div>
                     </div>
 
                     <div className="text-right">
                       <span
-                        className={`px-3 py-1 rounded-full inline-flex gap-1 items-center text-[14px] font-medium ${item.color}`}
+                        className="px-3 py-1 rounded-full inline-flex gap-1 items-center text-[14px] font-medium bg-blue-100 text-blue-700"
                       >
-                        {item.icon}
-                        {item.type}
+                        <Phone size={12} />
+                        {item.status}
                       </span>
 
                       <p className="text-[12px] font-normal text-gray-500 mt-2">
-                        10:00 AM - 3:00 PM • ₹562
+                        {item.metadata?.duration_minutes || 0} min • {formatCurrency(item.revenue)}
                       </p>
                     </div>
                   </div>
@@ -389,17 +379,19 @@ export default function Page() {
               </div>
 
               <div className="mt-6 space-y-5">
-                {transactions.map((item, i) => (
+                {transactions.map((item, i) => {
+                  const positive = item.transaction_type !== "withdrawal";
+                  return (
                   <div key={i} className="flex justify-between items-center">
                     <div className="flex gap-3 items-center">
                       <div
                         className={`w-11 h-11 rounded-full flex items-center justify-center ${
-                          item.positive
+                          positive
                             ? "bg-green-100 text-green-700"
                             : "bg-red-100 text-red-600"
                         }`}
                       >
-                        {item.positive ? (
+                        {positive ? (
                           <ArrowDownRight size={16} />
                         ) : (
                           <ArrowUpRight size={16} />
@@ -407,9 +399,9 @@ export default function Page() {
                       </div>
 
                       <div>
-                        <h4 className="text-[15px] font-medium">{item.name}</h4>
+                        <h4 className="text-[15px] font-medium">{item.metadata?.user_name || item.metadata?.astrologer_name || "Transaction"}</h4>
                         <p className="text-[16px] text-gray-500">
-                          Recharge • TXN001
+                          {item.transaction_type || "transaction"} • {item.order_id}
                         </p>
                       </div>
                     </div>
@@ -417,18 +409,19 @@ export default function Page() {
                     <div className="text-right">
                       <h4
                         className={`text-[18px] font-medium ${
-                          item.positive ? "text-green-600" : "text-red-500"
+                          positive ? "text-green-600" : "text-red-500"
                         }`}
                       >
-                        {item.amount}
+                        {positive ? "+" : "-"}{formatCurrency(item.amount)}
                       </h4>
 
                       <p className="text-[14px] font-normal  text-gray-500 mt-1">
-                        Completed
+                        {item.status}
                       </p>
                     </div>
                   </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
           </div>

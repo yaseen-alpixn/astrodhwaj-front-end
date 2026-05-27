@@ -23,11 +23,7 @@ export type SettingsSection = {
   items: SettingsItem[];
 };
 
-export const settingsProfile = {
-  name: "Abhishek Pandey",
-  phone: "+91 9480009900",
-  imageSrc: "/images/profile.svg",
-};
+
 
 export const settingsSections: SettingsSection[] = [
   {
@@ -97,7 +93,7 @@ export const settingsSections: SettingsSection[] = [
 
 export const settingsAppInfo = {
   logoSrc: "/logo/astro-logo.svg",
-  title: "AstroConnect",
+  title: "AstroDhwaj",
   subtitle: "Your Personal Spiritual Guide",
   version: "Version 1.0.0",
 };

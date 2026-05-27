@@ -25,7 +25,7 @@ export default function CourseSidebarCard() {
       </p>
 
       <p className="mt-1 text-[0.9rem] font-medium text-[#25252b]">
-        Created by <span className="font-semibold">AstroConnect</span>
+        Created by <span className="font-semibold">AstroDhwaj</span>
       </p>
 
       <div className="mt-1 overflow-hidden rounded-[10px] border border-[#dbd3e8] bg-white">

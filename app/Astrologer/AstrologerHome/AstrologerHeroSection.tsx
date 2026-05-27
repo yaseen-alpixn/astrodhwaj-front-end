@@ -4,31 +4,36 @@ import Image from "next/image";
 import Link from "next/link";
 import { Radio } from "lucide-react";
 import DashboardStats from "./DashboardStats";
+import { formatCurrency } from "@/services/api";
 
-const stats = [
-  {
-    src: "/images/twoWithdraw (3).png",
-    value: "8",
-    label: "Consultations Today",
-  },
-  {
-    src: "/images/twoEarnings.png",
-    value: "₹6250",
-    label: "Today's Earnings",
-  },
-  {
-    src: "/images/twoWithdraw (4).png",
-    value: "4.8",
-    label: "Ratings",
-  },
-  {
-    src: "/images/twoWithdraw (2).png",
-    value: "₹0",
-    label: "Wallet Balance",
-  },
-];
+type AstrologerHeroSectionProps = {
+  stats?: Record<string, number>;
+};
 
-export default function AstrologerHeroSection() {
+export default function AstrologerHeroSection({ stats: apiStats }: AstrologerHeroSectionProps) {
+  const stats = [
+    {
+      src: "/images/twoWithdraw (3).png",
+      value: String(apiStats?.consultations_today || 0),
+      label: "Consultations Today",
+    },
+    {
+      src: "/images/twoEarnings.png",
+      value: formatCurrency(apiStats?.today_earnings || 0),
+      label: "Today's Earnings",
+    },
+    {
+      src: "/images/twoWithdraw (4).png",
+      value: String(apiStats?.rating || 0),
+      label: "Ratings",
+    },
+    {
+      src: "/images/twoWithdraw (2).png",
+      value: formatCurrency(apiStats?.wallet_balance || 0),
+      label: "Wallet Balance",
+    },
+  ];
+
   return (
     <div className="w-full flex flex-col gap-6 xl:flex-row xl:items-stretch">
       {/* LEFT SIDE */}
@@ -87,7 +92,7 @@ export default function AstrologerHeroSection() {
 
       {/* RIGHT SIDE */}
       <div className="w-full xl:w-1/2 min-w-0">
-        <DashboardStats />
+        <DashboardStats stats={apiStats} />
       </div>
     </div>
   );

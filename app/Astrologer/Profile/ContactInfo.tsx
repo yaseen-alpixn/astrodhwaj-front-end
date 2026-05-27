@@ -1,6 +1,12 @@
 import { Mail, Phone, MapPin } from "lucide-react";
 
-export default function ContactInfo() {
+export default function ContactInfo({
+  phone,
+  email,
+}: {
+  phone?: string;
+  email?: string;
+}) {
   return (
     <div className="space-y-3">
       <h2 className="font-[DM_Sans] font-semibold text-[18px] capitalize">
@@ -10,12 +16,12 @@ export default function ContactInfo() {
       <div className="flex flex-wrap gap-8 ">
         <div className="flex items-center gap-2">
           <Phone size={16} className="text-[#4898E1]" />
-          <span>+91 9876543210</span>
+          <span>{phone || "+91 9876543210"}</span>
         </div>
 
         <div className="flex items-center gap-2">
           <Mail size={16} className="text-[#4898E1]" />
-          <span>rahul@email.com</span>
+          <span>{email || "rahul@email.com"}</span>
         </div>
 
         <div className="flex items-center gap-2">

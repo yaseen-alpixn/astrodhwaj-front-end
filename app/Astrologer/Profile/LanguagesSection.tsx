@@ -1,5 +1,5 @@
-export default function LanguagesSection() {
-  const langs = ["Hindi", "English", "Sanskrit"];
+export default function LanguagesSection({ languages }: { languages?: string[] }) {
+  const langs = languages && languages.length > 0 ? languages : ["Hindi", "English", "Sanskrit"];
 
   return (
     <div className="space-y-2">

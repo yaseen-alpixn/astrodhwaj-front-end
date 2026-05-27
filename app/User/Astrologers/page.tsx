@@ -2,7 +2,7 @@ import FeaturedAstrologer from "../home/FeaturedAstrologer";
 export default function AstrologersPage() {
   return (
     <>
-      <FeaturedAstrologer />
+      <FeaturedAstrologer limit={100} />
     </>
   );
 }

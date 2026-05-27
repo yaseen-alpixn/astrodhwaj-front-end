@@ -35,7 +35,7 @@ export default function Navbar({ overlay = false }: NavbarProps) {
         >
           <Image
             src="/logo/astro-logo.svg"
-            alt="AstroConnect logo"
+            alt="AstroDhwaj logo"
             width={50}
             height={50}
             className="h-10 w-10 rounded-full sm:h-[50px] sm:w-[50px]"

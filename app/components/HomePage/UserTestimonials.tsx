@@ -11,7 +11,7 @@ const testimonials = [
     role: "User",
     avatar: "/images/profile.svg",
     rating: 4,
-    text: "AstroConnect has transformed my life! The astrologers are genuine and their predictions are accurate.",
+    text: "AstroDhwaj has transformed my life! The astrologers are genuine and their predictions are accurate.",
   },
   {
     id: 2,
@@ -19,7 +19,7 @@ const testimonials = [
     role: "User",
     avatar: "/images/profile.svg",
     rating: 5,
-    text: "AstroConnect has transformed my life! The astrologers are genuine and their predictions are accurate.",
+    text: "AstroDhwaj has transformed my life! The astrologers are genuine and their predictions are accurate.",
   },
   {
     id: 3,
@@ -27,7 +27,7 @@ const testimonials = [
     role: "User",
     avatar: "/images/profile.svg",
     rating: 5,
-    text: "AstroConnect has transformed my life! The astrologers are genuine and their predictions are accurate.",
+    text: "AstroDhwaj has transformed my life! The astrologers are genuine and their predictions are accurate.",
   },
   {
     id: 4,
@@ -35,7 +35,7 @@ const testimonials = [
     role: "User",
     avatar: "/images/profile.svg",
     rating: 5,
-    text: "AstroConnect has transformed my life! The astrologers are genuine and their predictions are accurate.",
+    text: "AstroDhwaj has transformed my life! The astrologers are genuine and their predictions are accurate.",
   },
 ];
 

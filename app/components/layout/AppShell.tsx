@@ -18,6 +18,7 @@ function AppShell({ children }: AppShellProps) {
   const isAdminRoute = normalizedPathname.startsWith("/admin");
   const isAstrologerRoute = normalizedPathname.startsWith("/astrologer");
   const isLoginRoute = normalizedPathname === "/login";
+  const isUnauthorizedRoute = normalizedPathname === "/unauthorized";
 
   return (
     <div className="flex min-h-full flex-col">
@@ -25,7 +26,8 @@ function AppShell({ children }: AppShellProps) {
       isDashboardRoute ||
       isUserRoute ||
       isAdminRoute ||
-      isAstrologerRoute ? null : (
+      isAstrologerRoute ||
+      isUnauthorizedRoute ? null : (
         <Navbar overlay={isLoginRoute} />
       )}
       <main className="flex flex-1 flex-col">{children}</main>

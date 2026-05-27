@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import {
   Home,
   Wallet,
@@ -13,6 +13,7 @@ import {
   FileText,
   DollarSign,
 } from "lucide-react";
+import { clearSession } from "../../../services/api";
 
 type SidebarItem = {
   href: string;
@@ -48,6 +49,12 @@ const sidebarItems: SidebarItem[] = [
     src: "/images/Messages.png",
   },
   {
+    href: "/Astrologer/SupportTickets",
+
+    label: "Support",
+    src: "/images/SidebarSupport.png",
+  },
+  {
     href: "/Astrologer/Consultation",
 
     label: "Consultation",
@@ -69,6 +76,7 @@ const sidebarItems: SidebarItem[] = [
 
 export default function DashboardSidebar() {
   const pathname = usePathname();
+  const router = useRouter();
 
   return (
     <aside className="hidden md:fixed md:left-0 md:top-0 md:flex md:h-screen md:w-[230px] md:flex-col md:justify-between md:border-r md:bg-[#f6f4f8] md:px-4 md:py-4">
@@ -78,7 +86,7 @@ export default function DashboardSidebar() {
         <div className="flex items-center gap-3 mb-6">
           <Image
             src="/logo/astro-logo.svg"
-            alt="AstroConnect logo"
+            alt="AstroDhwaj logo"
             width={44}
             height={44}
             className="rounded-full object-cover"
@@ -109,6 +117,7 @@ export default function DashboardSidebar() {
                   width={20}
                   height={20}
                   alt={label + " navigation icon"}
+                  style={{ width: "auto", height: "auto" }}
                   className={` object-cover ${
                     isActive ? " text-[#4898E1]" : "text-gray-600 "
                   }`}
@@ -121,12 +130,19 @@ export default function DashboardSidebar() {
       </div>
 
       {/* Logout Button */}
-      <button className="flex mt-2 items-center justify-center gap-2 bg-red-200 text-red-600 py-2.5 rounded-xl text-sm font-medium hover:bg-red-300 transition">
+      <button
+        onClick={() => {
+          clearSession("astrologer");
+          router.push("/login/astrologer");
+        }}
+        className="flex mt-2 items-center justify-center gap-2 bg-red-200 text-red-600 py-2.5 rounded-xl text-sm font-medium hover:bg-red-300 transition w-full"
+      >
         <Image
           src="/images/LogoutIcon.png"
           alt="logout"
           width={14}
           height={14}
+          style={{ width: "auto", height: "auto" }}
         />
         Logout
       </button>

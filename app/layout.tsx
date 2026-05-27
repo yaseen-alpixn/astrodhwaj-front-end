@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, DM_Sans } from "next/font/google";
 import AppShell from "./components/layout/AppShell";
+import { NetworkProvider } from "@/context/network-context";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -14,8 +15,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "AstroConnect",
-  description: "AstroConnect connects seekers with astrologers.",
+  title: "AstroDhwaj",
+  description: "AstroDhwaj connects seekers with astrologers.",
 };
 
 const dmSans = DM_Sans({
@@ -31,10 +32,12 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} ${dmSans.variable} h-full antialiased`}
     >
       <body className="min-h-full bg-white text-[#171717]">
-        <AppShell>{children}</AppShell>
+        <NetworkProvider>
+          <AppShell>{children}</AppShell>
+        </NetworkProvider>
       </body>
     </html>
   );

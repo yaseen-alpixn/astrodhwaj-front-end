@@ -1,59 +1,24 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Gift, ClipboardList, Star, Trash2 } from "lucide-react";
+import { io } from "socket.io-client";
+import { SOCKET_BASE, formatDate, getToken } from "@/services/api";
+import {
+  clearUserNotifications,
+  deleteUserNotification,
+  getNotifications,
+  markAllNotificationsRead,
+  markNotificationRead,
+  type NotificationItem,
+} from "@/services/user.service";
 
-interface Notification {
-  id: number;
+interface Notification extends NotificationItem {
   type: "offer" | "session" | "feature";
-  title: string;
   description: string;
   date: string;
   isRead: boolean;
 }
-
-const initialNotifications: Notification[] = [
-  {
-    id: 1,
-    type: "offer",
-    title: "Welcome Offer",
-    description: "Get 20% Off On Your First Consultation!",
-    date: "2026-03-23",
-    isRead: false,
-  },
-  {
-    id: 2,
-    type: "session",
-    title: "Session Completed",
-    description: "Your Session With Astrologer Priya Has Been Completed",
-    date: "2026-03-23",
-    isRead: true,
-  },
-  {
-    id: 3,
-    type: "feature",
-    title: "New Feature",
-    description: "Kundli Matching Is Now Available!",
-    date: "2026-03-23",
-    isRead: true,
-  },
-  {
-    id: 4,
-    type: "offer",
-    title: "Welcome Offer",
-    description: "Get 20% Off On Your First Consultation!",
-    date: "2026-03-23",
-    isRead: false,
-  },
-  {
-    id: 5,
-    type: "feature",
-    title: "New Feature",
-    description: "Kundli Matching Is Now Available!",
-    date: "2026-03-23",
-    isRead: true,
-  },
-];
 
 const getIcon = (type: Notification["type"]) => {
   switch (type) {
@@ -88,24 +53,70 @@ const getBorderColor = (type: Notification["type"]) => {
   }
 };
 
+const toNotification = (item: NotificationItem): Notification => ({
+  ...item,
+  type: (["offer", "session", "feature"].includes(item.type) ? item.type : "feature") as Notification["type"],
+  description: item.message,
+  date: formatDate(item.created_at),
+  isRead: item.is_read,
+});
+
 export default function Notification() {
-  const [notifications, setNotifications] =
-    useState<Notification[]>(initialNotifications);
+  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    getNotifications()
+      .then((response) => {
+        setNotifications((response.data || []).map(toNotification));
+        setError("");
+      })
+      .catch((err) => setError(err instanceof Error ? err.message : "Unable to load notifications"))
+      .finally(() => setLoading(false));
+  }, []);
+
+  useEffect(() => {
+    const socket = io(SOCKET_BASE, {
+      path: "/socket.io",
+      transports: ["websocket"],
+      auth: () => ({ token: getToken("user") }),
+      reconnection: true,
+    });
+    socket.on("notification", (payload: NotificationItem) => {
+      const incoming = toNotification({ ...payload, is_read: false });
+      setNotifications((current) => {
+        if (current.some((item) => item.id === incoming.id)) return current;
+        return [incoming, ...current];
+      });
+    });
+    return () => {
+      socket.disconnect();
+    };
+  }, []);
 
   const markAllAsRead = () => {
+    markAllNotificationsRead().catch((err) => setError(err instanceof Error ? err.message : "Unable to mark all as read"));
     setNotifications((prev) =>
       prev.map((notification) => ({ ...notification, isRead: true })),
     );
   };
 
   const clearAll = () => {
+    clearUserNotifications().catch((err) => setError(err instanceof Error ? err.message : "Unable to clear notifications"));
     setNotifications([]);
   };
 
-  const deleteNotification = (id: number) => {
+  const deleteNotification = (id: string) => {
+    deleteUserNotification(id).catch((err) => setError(err instanceof Error ? err.message : "Unable to delete notification"));
     setNotifications((prev) =>
       prev.filter((notification) => notification.id !== id),
     );
+  };
+
+  const markOneAsRead = (id: string) => {
+    markNotificationRead(id).catch(() => undefined);
+    setNotifications((prev) => prev.map((notification) => notification.id === id ? { ...notification, isRead: true } : notification));
   };
 
   return (
@@ -129,7 +140,15 @@ export default function Notification() {
 
         {/* Notifications List */}
         <div className="space-y-4">
-          {notifications.length === 0 ? (
+          {loading ? (
+            <div className="rounded-2xl bg-white p-8 text-center text-gray-500 shadow-sm">
+              Loading...
+            </div>
+          ) : error ? (
+            <div className="rounded-2xl bg-white p-8 text-center text-red-500 shadow-sm">
+              {error}
+            </div>
+          ) : notifications.length === 0 ? (
             <div className="rounded-2xl bg-white p-8 text-center text-gray-500 shadow-sm">
               No notifications
             </div>
@@ -137,6 +156,7 @@ export default function Notification() {
             notifications.map((notification) => (
               <div
                 key={notification.id}
+                onClick={() => !notification.isRead && markOneAsRead(notification.id)}
                 className={`relative rounded-2xl border-l-4 bg-white p-4 shadow-sm ${getBorderColor(notification.type)}`}
               >
                 <div className="flex gap-4">
@@ -165,14 +185,15 @@ export default function Notification() {
                     {!notification.isRead && (
                       <span className="h-3 w-3 rounded-full bg-yellow-400" />
                     )}
-                    {notification.type === "offer" && (
-                      <button
-                        onClick={() => deleteNotification(notification.id)}
+                    <button
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          deleteNotification(notification.id);
+                        }}
                         className="text-gray-400 transition-colors hover:text-red-500"
                       >
                         <Trash2 className="h-5 w-5" />
                       </button>
-                    )}
                   </div>
                 </div>
               </div>

@@ -1,28 +1,45 @@
-// components/wallet/StatsCards.tsx
+"use client";
+
 import Image from "next/image";
+import { useEffect, useState } from "react";
+import { adminApi, formatCurrency } from "../api";
+
 export default function WalletStatsCards() {
+  const [stats, setStats] = useState({
+    withdrawals: 0,
+    consultations: 0,
+    recharges: 0,
+    total_revenue: 0,
+  });
+
+  useEffect(() => {
+    adminApi<typeof stats>("/admin/transactions/stats")
+      .then((response) => setStats((current) => ({ ...current, ...response.data })))
+      .catch(() => undefined);
+  }, []);
+
   const cards = [
     {
       label: "Withdrawals",
-      value: "₹13.0K",
+      value: formatCurrency(stats.withdrawals),
       src: "/images/walletWithdraw.png",
       bg: "bg-blue-100",
     },
     {
       label: "Consultations",
-      value: "₹2.2K",
+      value: formatCurrency(stats.consultations),
       src: "/images/walletUser.png",
       bg: "bg-yellow-100",
     },
     {
       label: "Recharges",
-      value: "₹3.5K",
+      value: formatCurrency(stats.recharges),
       src: "/images/walletRecharge.png",
       bg: "bg-orange-100",
     },
     {
       label: "Total Revenue",
-      value: "₹18.7K",
+      value: formatCurrency(stats.total_revenue),
       src: "/images/walletRevenue.png",
       bg: "bg-green-100",
     },

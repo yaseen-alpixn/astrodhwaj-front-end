@@ -1,24 +1,25 @@
-import Image from "next/image";
+import type { Conversation } from "@/services/message.service";
 
-import { conversations } from "./data";
+type ConversationListProps = {
+  conversations: Conversation[];
+  activeId?: string | null;
+  onSelect?: (conversation: Conversation) => void;
+};
 
-export default function ConversationList() {
+export default function ConversationList({ conversations, activeId, onSelect }: ConversationListProps) {
   return (
     <section className="flex h-full min-h-0 flex-col gap-[10px] border-r border-[#ece8ef] bg-white px-4 lg:px-5">
       <div className="min-h-0 flex-1 overflow-y-auto py-3 scrollbar-hide [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
         {conversations.map((conversation) => (
           <article
             key={conversation.id}
+            onClick={() => onSelect?.(conversation)}
+            data-active={activeId === conversation.id}
             className="flex items-center gap-3 border-b border-[#ece8ef] py-4 last:border-b-0"
           >
-            <Image
-              src="/images/profile.svg"
-              alt={conversation.name}
-              width={52}
-              height={52}
-              className="h-[52px] w-[52px] shrink-0 rounded-full object-cover"
-              unoptimized
-            />
+            <div className="flex h-[52px] w-[52px] shrink-0 items-center justify-center rounded-full bg-[#E1F4FF] text-[18px] font-semibold text-[#4898E1]">
+              {(conversation.name || "C").charAt(0).toUpperCase()}
+            </div>
 
             <div className="min-w-0 flex-1">
               <div className="flex items-start justify-between gap-3">
@@ -26,7 +27,7 @@ export default function ConversationList() {
                   {conversation.name}
                 </h3>
 
-                {conversation.unread ? (
+                {(conversation.unread_count || 0) > 0 ? (
                   <span className="mt-1 h-3 w-3 shrink-0 rounded-full bg-[#4898E1]" />
                 ) : conversation.time ? (
                   <span className="shrink-0 text-[12px] font-normal text-[#4f4a57]">
@@ -37,10 +38,10 @@ export default function ConversationList() {
 
               <div className="mt-1 flex items-center justify-between gap-3">
                 <p className="truncate text-[13px] font-normal leading-[22px] text-[#737373]">
-                  {conversation.preview}
+                  {conversation.consultation_mode ? `${conversation.consultation_mode.replace(/_/g, " ")} - ` : ""}{conversation.preview}
                 </p>
 
-                {!conversation.unread && conversation.time ? (
+                {!(conversation.unread_count || 0) && conversation.time ? (
                   <span className="shrink-0 text-[12px] font-normal text-transparent">
                     {conversation.time}
                   </span>
@@ -49,6 +50,11 @@ export default function ConversationList() {
             </div>
           </article>
         ))}
+        {conversations.length === 0 && (
+          <div className="py-4 text-[13px] font-normal leading-[22px] text-[#737373]">
+            No conversations
+          </div>
+        )}
       </div>
     </section>
   );

@@ -1,14 +1,38 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import { Bell, Menu, Search, X } from "lucide-react";
 import Link from "next/link";
-
+import { getProfile, getNotifications } from "@/services/user.service";
 import DashboardSidebar from "@/app/User/DashboardSidebar";
+import Avatar from "@/app/components/common/Avatar";
 
 function DashboardHeader() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [profile, setProfile] = useState({
+    name: "User",
+    avatarUrl: null as string | null,
+  });
+  const [hasUnread, setHasUnread] = useState(false);
+
+  useEffect(() => {
+    getProfile()
+      .then((response) => setProfile({
+        name: response.data.full_name,
+        avatarUrl: response.data.avatar_url || "/images/profile.svg",
+      }))
+      .catch(() => undefined);
+  }, []);
+
+  useEffect(() => {
+    getNotifications()
+      .then((res) => {
+        const unread = (res.data || []).some((n) => !n.is_read);
+        setHasUnread(unread);
+      })
+      .catch(() => setHasUnread(false));
+  }, []);
 
   return (
     <>
@@ -28,13 +52,11 @@ function DashboardHeader() {
 
             {/* Profile */}
             <div className="flex items-center gap-2 sm:gap-3">
-              <Image
-                src="/images/profile.svg"
-                alt="Abhishek Pandey"
-                width={56}
-                height={56}
-                className="h-10 w-10 sm:h-12 sm:w-12 lg:h-14 lg:w-14 rounded-full object-cover"
-                unoptimized
+              <Avatar
+                src={profile.avatarUrl}
+                name={profile.name}
+                size={56}
+                className="h-10 w-10 sm:h-12 sm:w-12 lg:h-14 lg:w-14"
               />
 
               <div className="min-w-0">
@@ -42,7 +64,7 @@ function DashboardHeader() {
                   Welcome!
                 </p>
                 <h1 className="truncate text-[20px] font-bold tracking-[-0.04em] text-[#151515]">
-                  Abhishek Pandey
+                  {profile.name}
                 </h1>
               </div>
             </div>
@@ -53,10 +75,12 @@ function DashboardHeader() {
               aria-label="Notifications"
               className="ml-auto md:hidden relative inline-flex h-10 w-10 items-center justify-center rounded-full border border-black/18 bg-white text-black hover:bg-[#faf7ff]"
             >
-              <Link href="/user/Notification">
+              <Link href="/User/Notification">
                 <Bell className="h-5 w-5" strokeWidth={2.1} />
               </Link>
-              <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-[#ff2b1f]" />
+              {hasUnread && (
+                <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-[#ff2b1f]" />
+              )}
             </button>
           </div>
 
@@ -78,10 +102,12 @@ function DashboardHeader() {
               aria-label="Notifications"
               className="hidden md:inline-flex relative h-12 w-12 items-center justify-center rounded-full border border-black/18 bg-white text-black hover:bg-[#faf7ff]"
             >
-              <Link href="/user/Notification">
+              <Link href="/User/Notification">
                 <Bell className="h-5 w-5" strokeWidth={2.1} />
               </Link>
-              <span className="absolute right-3 top-3 h-2.5 w-2.5 rounded-full bg-[#ff2b1f]" />
+              {hasUnread && (
+                <span className="absolute right-3 top-3 h-2.5 w-2.5 rounded-full bg-[#ff2b1f]" />
+              )}
             </button>
           </div>
         </div>

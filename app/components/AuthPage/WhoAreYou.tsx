@@ -26,12 +26,13 @@ function WhoAreYou() {
             Who Are You?
           </h1>
           <p className="mt-2 text-base text-white/80">
-            Choose your journey with AstroConnect
+            Choose your journey with AstroDhwaj
           </p>
         </div>
 
         {/* Cards Container */}
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-6">
+          
           {/* User Card */}
           <div className="flex h-80 flex-col rounded-[24px] bg-white/95 p-6 shadow-[0_20px_60px_rgba(0,0,0,0.3)] backdrop-blur-sm">
             {/* Icon */}
@@ -65,13 +66,21 @@ function WhoAreYou() {
               </li>
             </ul>
 
-            {/* Button */}
-            <Link
-              href="/signup/user"
-              className="mt-auto block w-full rounded-full bg-[#0085FF] py-2 text-center text-sm font-semibold text-white transition-all hover:bg-[#0085FF] active:scale-95"
-            >
-              Continue as User
-            </Link>
+            {/* Actions */}
+            <div className="mt-auto flex flex-col gap-2.5">
+              <Link
+                href="/login/user"
+                className="block w-full rounded-full bg-[#0085FF] py-2 text-center text-sm font-semibold text-white transition-all hover:bg-[#0070d6] active:scale-95 shadow-md"
+              >
+                Log In as User
+              </Link>
+              <div className="text-center text-xs text-gray-500 font-semibold">
+                New seeker?{" "}
+                <Link href="/signup/user" className="text-[#0085FF] hover:underline">
+                  Create Account
+                </Link>
+              </div>
+            </div>
           </div>
 
           {/* Astrologer Card */}
@@ -99,26 +108,32 @@ function WhoAreYou() {
             <ul className="mt-3 flex-1 space-y-1 text-gray-700 text-xs">
               <li className="flex items-start gap-2">
                 <span className="mt-1 inline-block h-1 w-1 flex-shrink-0 rounded-full bg-gray-400" />
-                <span>Share your expertise.</span>
+                <span>Share your astrology expertise.</span>
               </li>
               <li className="flex items-start gap-2">
                 <span className="mt-1 inline-block h-1 w-1 flex-shrink-0 rounded-full bg-gray-400" />
-                <span>Set your own rates.</span>
+                <span>Set your own session pricing rates.</span>
               </li>
               <li className="flex items-start gap-2">
                 <span className="mt-1 inline-block h-1 w-1 flex-shrink-0 rounded-full bg-gray-400" />
-                <span>Build your clientele</span>
+                <span>Build your client roster and consult.</span>
               </li>
             </ul>
 
-            {/* Button */}
-            <Link
-              href="/signup/astrologer"
-              className="mt-auto block w-full rounded-full bg-[#f4c400] py-2 text-center text-sm font-semibold text-gray-900 transition-all hover:bg-[#e0b000] active:scale-95"
-            >
-              Continue as Astrologer
-            </Link>
+            {/* Actions */}
+            <div className="mt-auto flex flex-col gap-2.5">
+              <Link
+                href="/login/astrologer"
+                className="block w-full rounded-full bg-[#f4c400] py-2 text-center text-sm font-semibold text-gray-900 transition-all hover:bg-[#e0b000] active:scale-95 shadow-md"
+              >
+                Log In as Astrologer
+              </Link>
+              <div className="text-center text-xs text-gray-400 font-medium italic">
+                Astrologer registrations are closed temporarily
+              </div>
+            </div>
           </div>
+          
         </div>
       </div>
     </div>

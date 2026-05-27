@@ -1,17 +1,16 @@
 "use client";
 import CallList from "./CallList";
 import { Download } from "lucide-react";
+import { formatCurrency } from "@/services/api";
+import type { AstrologerDashboard } from "@/services/astrologer.service";
 
-const data2 = [
-  { month: "Jan", value: 100 },
-  { month: "Feb", value: 85 },
-  { month: "Mar", value: 80 },
-  { month: "Apr", value: 95 },
-  { month: "May", value: 75 },
-  { month: "Jun", value: 92 },
-];
+type EarningsBarsProps = {
+  trend: AstrologerDashboard["earning_trend"];
+  transactions: AstrologerDashboard["schedule"];
+};
 
-export default function EarningsBars() {
+export default function EarningsBars({ trend, transactions }: EarningsBarsProps) {
+  const maxAmount = Math.max(...trend.map((item) => item.amount), 1);
   return (
     <div className="flex flex-col gap-6 xl:flex-row xl:items-start w-full">
       <div className="w-full w-full lg:max-w-[770px] bg-[#F5F5F5] rounded-[15px] p-5">
@@ -30,14 +29,14 @@ export default function EarningsBars() {
         </div>
         {/* Bars */}
         <div className="flex flex-col gap-4">
-          {data2.map((item, i) => (
+          {trend.map((item, i) => (
             <div key={i}>
               {/* Month + Amount */}
               <div className="mb-2 flex h-[20px] w-full items-center justify-between">
                 <span className="text-[11px] font-medium">{item.month}</span>
 
                 <span className="text-[16px] font-semibold text-[#4898E1] text-right capitalize">
-                  ₹45,000
+                  {formatCurrency(item.amount)}
                 </span>
               </div>
 
@@ -47,7 +46,7 @@ export default function EarningsBars() {
                 <div
                   className="h-full rounded-full"
                   style={{
-                    width: `${item.value}%`,
+                    width: `${Math.max(6, (item.amount / maxAmount) * 100)}%`,
                     background:
                       "linear-gradient(90deg, #FFC107 0%, #4898E1 100%)",
                   }}
@@ -55,9 +54,10 @@ export default function EarningsBars() {
               </div>
             </div>
           ))}
+          {trend.length === 0 && <p className="text-[11px] font-medium">No earnings data</p>}
         </div>
       </div>{" "}
-      <CallList />
+      <CallList data={transactions} />
     </div>
   );
 }

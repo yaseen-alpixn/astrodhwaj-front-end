@@ -37,18 +37,18 @@ export type ChatMessage = {
 };
 
 export const sidebarItems: SidebarItem[] = [
-  { href: "/user/home", icon: Home, label: "Home", active: true },
-  { href: "#", icon: Users, label: "Astrologers" },
-  { href: "/user/wallet", icon: WalletCards, label: "My Wallet" },
-  { href: "/user/messageAndChat", icon: MessageSquareText, label: "Messages" },
+  { href: "/User/home", icon: Home, label: "Home", active: true },
+  { href: "/User/Astrologers", icon: Users, label: "Astrologers" },
+  { href: "/User/wallet", icon: WalletCards, label: "My Wallet" },
+  { href: "/User/message", icon: MessageSquareText, label: "Messages" },
   { href: "#", icon: Headphones, label: "Free Services" },
-  { href: "/user/kundali", icon: Sparkles, label: "Kundali" },
-  { href: "#", icon: Hash, label: "Numerology" },
-  { href: "#", icon: BookOpenText, label: "Tarot Reading" },
-  { href: "#", icon: Hand, label: "Reiki Healing" },
-  { href: "#", icon: Building2, label: "Vastu" },
-  { href: "#", icon: BookOpenText, label: "Courses" },
-  { href: "#", icon: Settings, label: "Settings" },
+  { href: "/User/kundali", icon: Sparkles, label: "Kundali" },
+  { href: "/User/Numerology", icon: Hash, label: "Numerology" },
+  { href: "/User/TarotReading", icon: BookOpenText, label: "Tarot Reading" },
+  { href: "/User/ReikiHealing", icon: Hand, label: "Reiki Healing" },
+  { href: "/User/Vastu", icon: Building2, label: "Vastu" },
+  { href: "/User/courses", icon: BookOpenText, label: "Courses" },
+  { href: "/User/Settings", icon: Settings, label: "Settings" },
 ];
 
 export const conversations: Conversation[] = [

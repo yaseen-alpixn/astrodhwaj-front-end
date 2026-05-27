@@ -1,12 +1,32 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { adminApi } from "../../api";
 
 export default function SecuritySettings() {
   const [twoFA, setTwoFA] = useState(true);
   const [timeout, setTimeoutValue] = useState("30");
   const [attempts, setAttempts] = useState("5");
   const [ipList, setIpList] = useState("192.168.1.1\n10.0.0.1");
+  const [message, setMessage] = useState("");
+
+  useEffect(() => {
+    adminApi<{ values?: { twoFA?: boolean; timeout?: string; attempts?: string; ipList?: string } }>("/admin/settings/security")
+      .then((response) => {
+        const values = response.data.values || {};
+        if (typeof values.twoFA === "boolean") setTwoFA(values.twoFA);
+        if (values.timeout) setTimeoutValue(values.timeout);
+        if (values.attempts) setAttempts(values.attempts);
+        if (values.ipList) setIpList(values.ipList);
+      })
+      .catch(() => undefined);
+  }, []);
+
+  const save = () => {
+    adminApi("/admin/settings/security", { method: "PUT", body: JSON.stringify({ values: { twoFA, timeout, attempts, ipList } }) })
+      .then(() => setMessage("Saved"))
+      .catch((err) => setMessage(err instanceof Error ? err.message : "Save failed"));
+  };
 
   return (
     <div className="shadow-sm rounded-xl p-6 bg-white">
@@ -84,10 +104,11 @@ export default function SecuritySettings() {
 
       {/* Save Button */}
       <div className="flex justify-end mt-6">
-        <button className="bg-[#4898E1] text-white px-6 py-2 rounded-md">
+        <button onClick={save} className="bg-[#4898E1] text-white px-6 py-2 rounded-md">
           Save Security Settings
         </button>
       </div>
+      {message && <p className="mt-3 text-right text-sm text-gray-500">{message}</p>}
     </div>
   );
 }

@@ -1,23 +1,27 @@
 import Image from "next/image";
 import Link from "next/link";
 import { LogOut } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { clearSession } from "../../../services/api";
 
 import { sidebarItems } from "./data";
 
 export default function MessageSidebar() {
+  const router = useRouter();
+
   return (
     <aside className="flex min-h-svh w-full flex-col border-r border-[#e5e7eb] bg-white px-4 py-5 shadow-[20px_0_60px_rgba(72,152,225,0.05)] md:fixed md:inset-y-0 md:left-0 md:z-40 md:w-[290px] md:max-w-[290px] md:overflow-y-auto">
-      <Link href="/user/home" className="flex items-center gap-3 px-2 py-1">
+      <Link href="/User/home" className="flex items-center gap-3 px-2 py-1">
         <Image
           src="/logo/astro-logo.svg"
-          alt="AstroConnect logo"
+          alt="AstroDhwaj logo"
           width={60}
           height={60}
           className="h-[60px] w-[60px] rounded-full"
           unoptimized
         />
         <span className="text-[18px] font-semibold tracking-[-0.03em] text-[#181818]">
-          AstroConnect
+          AstroDhwaj
         </span>
       </Link>
 
@@ -61,7 +65,11 @@ export default function MessageSidebar() {
 
       <button
         type="button"
-        className="mt-8 inline-flex items-center justify-center gap-2 rounded-[16px] bg-[#ffe0e0] px-4 py-4 text-[13px] font-medium text-[#ff2b1f]"
+        onClick={() => {
+          clearSession("user");
+          router.push("/login/user");
+        }}
+        className="mt-8 inline-flex items-center justify-center gap-2 rounded-[16px] bg-[#ffe0e0] px-4 py-4 text-[13px] font-medium text-[#ff2b1f] w-full"
       >
         <LogOut className="h-5 w-5" strokeWidth={2.2} />
         Logout

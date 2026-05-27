@@ -76,7 +76,7 @@ function AboutSection() {
 
           <div className="mt-6 max-w-[720px] space-y-7 text-[1.1rem] leading-relaxed text-[#44414b] sm:text-[1.25rem]">
             <p>
-              AstroConnect is India&apos;s leading online platform connecting
+              AstroDhwaj is India&apos;s leading online platform connecting
               users with certified astrologers, tarot readers, numerologists,
               and spiritual healers. Our mission is to make authentic spiritual
               guidance accessible to everyone, anytime, anywhere.

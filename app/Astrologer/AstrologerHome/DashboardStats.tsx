@@ -2,26 +2,31 @@
 
 import Image from "next/image";
 import { Phone, MessageCircle, Video, Star } from "lucide-react";
+import { formatCurrency } from "@/services/api";
 
-const sessions = [
-  {
-    icon: <Phone className="w-5 h-5 text-green-500" />,
-    title: "842",
-    subtitle: "Call Sessions",
-  },
-  {
-    icon: <MessageCircle className="w-5 h-5 text-pink-500" />,
-    title: "842",
-    subtitle: "Chat Sessions",
-  },
-  {
-    icon: <Video className="w-5 h-5 text-orange-500" />,
-    title: "842",
-    subtitle: "Video Sessions",
-  },
-];
+type DashboardStatsProps = {
+  stats?: Record<string, number>;
+};
 
-export default function DashboardStats() {
+export default function DashboardStats({ stats }: DashboardStatsProps) {
+  const sessions = [
+    {
+      icon: <Phone className="w-5 h-5 text-green-500" />,
+      title: String(stats?.call_sessions || 0),
+      subtitle: "Call Sessions",
+    },
+    {
+      icon: <MessageCircle className="w-5 h-5 text-pink-500" />,
+      title: String(stats?.chat_sessions || 0),
+      subtitle: "Chat Sessions",
+    },
+    {
+      icon: <Video className="w-5 h-5 text-orange-500" />,
+      title: String(stats?.video_sessions || 0),
+      subtitle: "Video Sessions",
+    },
+  ];
+
   return (
     <div className="w-full space-y-4">
       {/* Heading */}
@@ -42,7 +47,7 @@ export default function DashboardStats() {
           />
 
           <div>
-            <p className="text-[20px] font-bold text-[#4898E1]">1312</p>
+            <p className="text-[20px] font-bold text-[#4898E1]">{stats?.total_consultations || 0}</p>
             <p className="text-[12px] text-gray-500">Total Consultations</p>
           </div>
         </div>
@@ -80,7 +85,7 @@ export default function DashboardStats() {
           />
 
           <div>
-            <p className="text-[20px] font-bold text-[#4898E1]">₹3,28,000</p>
+            <p className="text-[20px] font-bold text-[#4898E1]">{formatCurrency(stats?.total_earnings || 0)}</p>
             <p className="text-[12px] text-gray-500">Total Earnings</p>
           </div>
         </div>
@@ -89,10 +94,10 @@ export default function DashboardStats() {
         <div className="flex-[2] min-h-[108px] rounded-[15px] p-5 relative overflow-hidden bg-gradient-to-b from-[#0180D5] to-[#DD9A29] text-white">
           <p className="text-[12px]">Average Per Session</p>
 
-          <p className="text-[20px] font-bold mt-2">₹250</p>
+          <p className="text-[20px] font-bold mt-2">{formatCurrency(stats?.average_per_session || 0)}</p>
 
           <span className="absolute right-6 top-1/2 -translate-y-1/2 text-[62px] opacity-75 mix-blend-overlay">
-            ₹
+            INR
           </span>
         </div>
       </div>

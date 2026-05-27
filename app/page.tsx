@@ -14,9 +14,12 @@ import Footer from "./components/layout/Footer";
 // import VideoCall from "./calls/VideoCall";
 // import AudioCall from "./calls/AudioCall";
 
+import AutoLoginRedirect from "./components/AutoLoginRedirect";
+
 export default function Home() {
   return (
     <>
+      <AutoLoginRedirect />
       {/* <VideoCall /> */}
       {/* <AudioCall /> */}
 

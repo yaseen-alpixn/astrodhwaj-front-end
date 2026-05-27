@@ -1,10 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import TicketDetailsModal from "./TicketDetailsModal";
 
-export default function Page() {
-  const [open, setOpen] = useState(false);
+function TicketPopupContent() {
+  const [open, setOpen] = useState(true);
+  const params = useSearchParams();
+  const ticketId = params.get("id") || undefined;
 
   return (
     <div className="p-6">
@@ -17,7 +20,7 @@ export default function Page() {
 
       {open && (
         <>
-          <TicketDetailsModal onClose={() => setOpen(false)} />
+          <TicketDetailsModal ticketId={ticketId} onClose={() => setOpen(false)} />
 
           {/* OVERLAY CLICK */}
           <button
@@ -27,5 +30,13 @@ export default function Page() {
         </>
       )}
     </div>
+  );
+}
+
+export default function Page() {
+  return (
+    <Suspense fallback={<div className="p-6" />}>
+      <TicketPopupContent />
+    </Suspense>
   );
 }

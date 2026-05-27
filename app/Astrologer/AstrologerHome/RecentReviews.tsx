@@ -2,31 +2,14 @@
 
 import { Sparkles, Star } from "lucide-react";
 
-const reviews = [
-  {
-    name: "Anjali P",
-    date: "2026-03-20",
-    location: "Mumbai",
-    rating: "4.8",
-    review: "Amazing Numerology Session!",
-  },
-  {
-    name: "Anjali P",
-    date: "2026-03-20",
-    location: "Mumbai",
-    rating: "4.8",
-    review: "Amazing Numerology Session!",
-  },
-  {
-    name: "Anjali P",
-    date: "2026-03-20",
-    location: "Mumbai",
-    rating: "4.8",
-    review: "Amazing Numerology Session!",
-  },
-];
+type ReviewItem = {
+  id: string;
+  rating: number;
+  comment: string;
+  created_at?: string;
+};
 
-export default function RecentReviews() {
+export default function RecentReviews({ reviews }: { reviews: ReviewItem[] }) {
   return (
     <div className="w-full mt-2">
       {/* Heading */}
@@ -41,18 +24,18 @@ export default function RecentReviews() {
       <div className="flex flex-col gap-4">
         {reviews.map((item, i) => (
           <div
-            key={i}
+            key={item.id || i}
             className="min-h-[110px] w-full rounded-[15px] bg-[#F5F5F5] p-[15px] flex flex-col justify-between"
           >
             <div className="flex items-center justify-between">
               {/* Name + Date */}
               <div>
                 <h3 className="text-[16px] font-semibold capitalize">
-                  {item.name}
+                  User
                 </h3>
 
                 <p className="text-[12px] font-normal text-gray-600 capitalize">
-                  {item.date}, {item.location}
+                  {item.created_at ? new Date(item.created_at).toLocaleDateString("en-IN") : "-"}, Mumbai
                 </p>
               </div>
 
@@ -67,10 +50,11 @@ export default function RecentReviews() {
 
             {/* Review Text */}
             <p className="text-[13px] font-normal leading-[22px] text-gray-700 capitalize">
-              {item.review}
+              {item.comment}
             </p>
           </div>
         ))}
+        {reviews.length === 0 && <p className="text-[13px] font-normal leading-[22px] text-gray-700 capitalize">No reviews found</p>}
       </div>
     </div>
   );

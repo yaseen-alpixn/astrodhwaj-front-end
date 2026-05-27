@@ -2,7 +2,8 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { clearSession } from "../../services/api";
 
 type SidebarItem = {
   href: string;
@@ -18,7 +19,7 @@ type DashboardSidebarProps = {
 
 const sidebarItems: SidebarItem[] = [
   {
-    href: "/user/home",
+    href: "/User/home",
 
     label: "Home",
     src: "/images/Home (2).png",
@@ -28,10 +29,12 @@ const sidebarItems: SidebarItem[] = [
     src: "/images/SidebarUser.png",
     label: "Astrologers",
   },
-  { href: "/user/wallet", src: "/images/Wallet2.png", label: "My Wallet" },
-  { href: "/user/message", src: "/images/Messages.png", label: "Messages" },
+  { href: "/User/wallet", src: "/images/Wallet2.png", label: "My Wallet" },
+  { href: "/User/message", src: "/images/Messages.png", label: "Messages" },
+  { href: "/User/LiveSessions", src: "/images/ServerLogo.png", label: "Live Sessions" },
+  { href: "/User/SupportTickets", src: "/images/SidebarSupport.png", label: "Support" },
 
-  { href: "/user/kundali", src: "/images/SidebarStar.png", label: "Kundali" },
+  { href: "/User/kundali", src: "/images/SidebarStar.png", label: "Kundali" },
   {
     href: "/User/Numerology",
     src: "/images/SidebarHash.png",
@@ -48,7 +51,7 @@ const sidebarItems: SidebarItem[] = [
     label: "Reiki Healing",
   },
   { href: "/User/Vastu", src: "/images/SidebarVastu.png", label: "Vastu" },
-  { href: "/user/courses", src: "/images/SidebarBook.png", label: "courses" },
+  { href: "/User/courses", src: "/images/SidebarBook.png", label: "courses" },
   { href: "/User/Settings", src: "/images/Settings2.png", label: "Settings" },
 ];
 export default function DashboardSidebar({
@@ -56,6 +59,7 @@ export default function DashboardSidebar({
   onNavigate,
 }: DashboardSidebarProps) {
   const pathname = usePathname();
+  const router = useRouter();
   const asideClassName = mobile
     ? "flex min-h-0 flex-1 w-full flex-col overflow-y-auto border-r border-[#e5e7eb] p-3.5 py-3.5 shadow-[20px_0_60px_rgba(72,152,225,0.05)] sm:px-4 sm:py-4"
     : "hidden min-h-svh w-full flex-col border-r border-[#e5e7eb] bg-white px-3.5 py-3.5 sm:px-4 sm:py-4 md:fixed md:inset-y-0 md:left-0 md:z-40 md:flex md:w-[220px] md:max-w-[220px] md:overflow-y-auto";
@@ -63,13 +67,13 @@ export default function DashboardSidebar({
   return (
     <aside className={asideClassName}>
       <Link
-        href="/user/home"
+        href="/User/home"
         className="flex items-center gap-2 px-1 py-1"
         onClick={onNavigate}
       >
         <Image
           src="/logo/astro-logo.svg"
-          alt="AstroConnect logo"
+          alt="AstroDhwaj logo"
           width={52}
           height={52}
           className="h-[52px] w-[52px] rounded-full"
@@ -81,7 +85,7 @@ export default function DashboardSidebar({
       </Link>
       <nav className="mt-5 flex flex-1 flex-col gap-1">
         {sidebarItems.map(({ href, src: src, label }) => {
-          const isActive = pathname === href;
+          const isActive = pathname === href || pathname.startsWith(`${href}/`);
 
           return (
             <Link
@@ -100,6 +104,7 @@ export default function DashboardSidebar({
                 alt={label + " navigation icon"}
                 width={18}
                 height={18}
+                style={{ width: "auto", height: "auto" }}
                 className="object-contain "
               />
               <span>{label}</span>
@@ -113,6 +118,7 @@ export default function DashboardSidebar({
           alt="Donate with Pooja"
           width={200}
           height={100}
+          style={{ width: "auto", height: "auto" }}
           className="w-full h-[100px] object-cover object-[center_55%]rounded-md"
         />
         <Link href="/donate">
@@ -121,12 +127,19 @@ export default function DashboardSidebar({
           </button>
         </Link>
       </div>
-      <button className="mt-6 flex items-center justify-center gap-2 rounded-lg bg-red-200 py-2 text-[13px] font-medium text-red-700 hover:bg-red-200">
+      <button
+        onClick={() => {
+          clearSession("user");
+          router.push("/login/user");
+        }}
+        className="mt-6 flex items-center justify-center gap-2 rounded-lg bg-red-200 py-2 text-[13px] font-medium text-red-700 hover:bg-red-200 w-full"
+      >
         <Image
           src="/images/LogoutIcon.png"
           alt="LogoutIcon"
           width={12}
           height={12}
+          style={{ width: "auto", height: "auto" }}
           className="h-[12px] w-[12px] "
         />
         Logout

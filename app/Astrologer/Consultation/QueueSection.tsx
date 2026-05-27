@@ -6,7 +6,7 @@ export default function QueueSection() {
   return (
     <div className="space-y-4 w-full">
       {data.map((type, i) => (
-        <QueueCard key={i} type={type} />
+        <QueueCard key={i} id={String(i)} name="Client Name" type={type} onAccept={() => {}} onDecline={() => {}} />
       ))}
     </div>
   );
