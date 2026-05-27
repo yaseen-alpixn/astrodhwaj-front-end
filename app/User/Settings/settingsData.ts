@@ -92,7 +92,7 @@ export const settingsSections: SettingsSection[] = [
 ];
 
 export const settingsAppInfo = {
-  logoSrc: "/logo/astro-logo.svg",
+  logoSrc: "/logo/logo.jpeg",
   title: "AstroDhwaj",
   subtitle: "Your Personal Spiritual Guide",
   version: "Version 1.0.0",

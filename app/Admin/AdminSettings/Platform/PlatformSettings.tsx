@@ -24,7 +24,7 @@ export default function PlatformSettings() {
     description: "Professional astrology consultation platform connecting users with verified astrologers.",
     support_email: "support@astrodhwaj.com",
     support_phone: "+1 (800) 123-4567",
-    logo_url: "/logo/astro-logo.svg",
+    logo_url: "/logo/logo.jpeg",
     language: "English",
     timezone: "IST (UTC +5:30)",
     currency: "INR (₹)",
@@ -78,7 +78,7 @@ export default function PlatformSettings() {
 
         <div className="flex items-center gap-4">
           <div className="w-[60px] h-[60px] rounded-full bg-orange-200">
-            <Image src={values.logo_url || "/logo/astro-logo.svg"} height={60} width={60} alt="AstroDhwaj logo" />
+            <Image src={values.logo_url || "/logo/logo.jpeg"} height={60} width={60} alt="AstroDhwaj logo" />
           </div>
 
           <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={(event) => {

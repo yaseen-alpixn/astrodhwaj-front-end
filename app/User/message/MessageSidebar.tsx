@@ -13,7 +13,7 @@ export default function MessageSidebar() {
     <aside className="flex min-h-svh w-full flex-col border-r border-[#e5e7eb] bg-white px-4 py-5 shadow-[20px_0_60px_rgba(72,152,225,0.05)] md:fixed md:inset-y-0 md:left-0 md:z-40 md:w-[290px] md:max-w-[290px] md:overflow-y-auto">
       <Link href="/User/home" className="flex items-center gap-3 px-2 py-1">
         <Image
-          src="/logo/astro-logo.svg"
+          src="/logo/logo.jpeg"
           alt="AstroDhwaj logo"
           width={60}
           height={60}

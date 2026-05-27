@@ -34,14 +34,14 @@ export default function Navbar({ overlay = false }: NavbarProps) {
           className="flex items-center gap-2.5 font-semibold tracking-tight text-[#171717]"
         >
           <Image
-            src="/logo/astro-logo.svg"
+            src="/logo/logo.jpeg"
             alt="AstroDhwaj logo"
             width={50}
             height={50}
             className="h-10 w-10 rounded-full sm:h-[50px] sm:w-[50px]"
             unoptimized
           />
-          <span className="text-lg sm:text-2xl">AstroDwaj</span>
+          <span className="text-lg sm:text-2xl">AstroDhwaj</span>
         </Link>
 
         {/* Desktop Nav */}

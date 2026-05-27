@@ -85,7 +85,7 @@ export default function DashboardSidebar() {
         {/* Logo */}
         <div className="flex items-center gap-3 mb-6">
           <Image
-            src="/logo/astro-logo.svg"
+            src="/logo/logo.jpeg"
             alt="AstroDhwaj logo"
             width={44}
             height={44}

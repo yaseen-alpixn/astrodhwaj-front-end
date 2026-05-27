@@ -97,7 +97,7 @@ export default function DashboardSidebar({
         onClick={onNavigate}
       >
         <Image
-          src="/logo/astro-logo.svg"
+          src="/logo/logo.jpeg"
           alt="AstroDhwaj logo"
           width={48}
           height={48}

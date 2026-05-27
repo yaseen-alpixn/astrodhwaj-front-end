@@ -160,7 +160,7 @@ function EmailAccessCard({ role, mode = "login" }: EmailAccessCardProps) {
             <div className="flex justify-center">
               <div className="rounded-full bg-[linear-gradient(135deg,#f5c84b_0%,#7f2cff_100%)] p-[3px] shadow-[0_10px_24px_rgba(122,30,177,0.24)]">
                 <Image
-                  src="/logo/astro-logo.svg"
+                  src="/logo/logo.jpeg"
                   alt="AstroDhwaj logo"
                   width={48}
                   height={48}
