@@ -9,3 +9,16 @@
 .tarot-dot {
   animation: tarot-pulse 1.2s ease-in-out infinite;
 }
+
+/* ── Hide Native Calendar & Clock Picker Icons ────────────────────────────── */
+input[type="date"]::-webkit-calendar-picker-indicator,
+input[type="time"]::-webkit-calendar-picker-indicator {
+  display: none !important;
+  -webkit-appearance: none !important;
+}
+
+input[type="date"],
+input[type="time"] {
+  position: relative;
+}
+

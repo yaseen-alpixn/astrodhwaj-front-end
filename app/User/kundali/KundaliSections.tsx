@@ -1,6 +1,6 @@
 "use client";
 
-import { Calendar, Clock3, Download, Heart, MapPin, Star, UserRound, AlertCircle } from "lucide-react";
+import { Calendar, Clock3, Download, Heart, MapPin, Star, UserRound, AlertCircle, Navigation } from "lucide-react";
 import { FormEvent, ReactNode, useMemo, useState, useEffect, useRef } from "react";
 import { api } from "@/services/api";
 import KundaliChartArt from "./KundaliChartArt";
@@ -46,6 +46,7 @@ export default function KundaliSections() {
   const [activeTab, setActiveTab] = useState("Chart");
   const [loading, setLoading] = useState("");
   const [error, setError] = useState("");
+  const [matchError, setMatchError] = useState("");
 
   const currentDashas = useMemo(() => report?.dasha.filter((item) => item.is_current).slice(0, 4) || [], [report]);
 
@@ -66,7 +67,7 @@ export default function KundaliSections() {
 
   async function runMatch(event: FormEvent) {
     event.preventDefault();
-    setError("");
+    setMatchError("");
     setLoading("match");
     try {
       const body = { male: { birth_details: maleForm }, female: { birth_details: femaleForm } };
@@ -74,7 +75,7 @@ export default function KundaliSections() {
       setMatch(response.data);
       setActiveTab("Matching");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Unable to generate matching report");
+      setMatchError(err instanceof Error ? err.message : "Unable to generate matching report");
     } finally {
       setLoading("");
     }
@@ -153,7 +154,7 @@ export default function KundaliSections() {
         </>
       )}
 
-      {activeTab === "Matching" ? <MatchingTab maleForm={maleForm} femaleForm={femaleForm} setMaleForm={setMaleForm} setFemaleForm={setFemaleForm} onSubmit={runMatch} loading={loading} match={match} /> : null}
+      {activeTab === "Matching" ? <MatchingTab maleForm={maleForm} femaleForm={femaleForm} setMaleForm={setMaleForm} setFemaleForm={setFemaleForm} onSubmit={runMatch} loading={loading} match={match} error={matchError} /> : null}
     </div>
   );
 }
@@ -165,7 +166,23 @@ function Field({ label, value, onChange, placeholder, type = "text", icon }: { l
       <span className="mb-1.5 block text-[14px] font-medium text-[#222]">{label}</span>
       <div className="flex h-11 items-center rounded-[8px] border border-[#cfc8da] px-3 text-sm text-[#7c7589] gap-2 bg-white">
         {icon}
-        <input required type={type} value={value} onChange={(event) => onChange(event.target.value)} className="w-full bg-transparent text-[#32283f] outline-none" placeholder={placeholder} />
+        <input
+          required
+          type={type}
+          value={value}
+          onChange={(event) => onChange(event.target.value)}
+          onClick={(e) => {
+            if (type === "date" || type === "time") {
+              try {
+                e.currentTarget.showPicker();
+              } catch (err) {}
+            }
+          }}
+          className={`w-full bg-transparent text-[#32283f] outline-none ${
+            type === "date" || type === "time" ? "cursor-pointer" : ""
+          }`}
+          placeholder={placeholder}
+        />
       </div>
     </label>
   );
@@ -176,6 +193,7 @@ function LocationField({ label, value, onChange, placeholder }: { label: string;
   const [inputValue, setInputValue] = useState("");
   const [suggestions, setSuggestions] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
+  const [detecting, setDetecting] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
   const debounceTimer = useRef<any>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -252,6 +270,44 @@ function LocationField({ label, value, onChange, placeholder }: { label: string;
     setShowDropdown(false);
   };
 
+  const handleDetectLocation = () => {
+    if (!navigator.geolocation) {
+      alert("Geolocation is not supported by your browser.");
+      return;
+    }
+    setDetecting(true);
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        try {
+          const { latitude, longitude } = position.coords;
+          const res = await fetch(
+            `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json&accept-language=en`
+          );
+          const data = await res.json();
+          const address = data.address || {};
+          const cityName = address.city || address.town || address.village || address.suburb || address.county || "Detected Location";
+          const displayName = data.display_name || `${cityName}, ${address.country || ""}`;
+          
+          const offset = Math.round((longitude / 15.0) * 2) / 2;
+          const formatted = `${latitude}, ${longitude}, ${offset}, ${displayName}`;
+          
+          onChange(formatted);
+          setInputValue(displayName);
+          setShowDropdown(false);
+        } catch (err) {
+          alert("Failed to reverse geocode location. Please search manually.");
+        } finally {
+          setDetecting(false);
+        }
+      },
+      (error) => {
+        setDetecting(false);
+        alert(`Geolocation error: ${error.message}`);
+      },
+      { enableHighAccuracy: true, timeout: 10000 }
+    );
+  };
+
   return (
     <div ref={containerRef} className="relative block">
       <span className="mb-1.5 block text-[14px] font-medium text-[#222]">{label}</span>
@@ -270,6 +326,18 @@ function LocationField({ label, value, onChange, placeholder }: { label: string;
         />
         {loading && (
           <span className="h-4 w-4 animate-spin rounded-full border-2 border-[#cfc8da] border-t-[#4898E1] shrink-0" />
+        )}
+        {detecting ? (
+          <span className="h-4 w-4 animate-spin rounded-full border-2 border-[#cfc8da] border-t-[#4898E1] shrink-0" />
+        ) : (
+          <button
+            type="button"
+            onClick={handleDetectLocation}
+            title="Detect my current location automatically"
+            className="p-1.5 hover:bg-slate-100 rounded-full transition shrink-0 flex items-center justify-center cursor-pointer"
+          >
+            <Navigation className="h-3.5 w-3.5 text-[#4898E1]" />
+          </button>
         )}
       </div>
 
@@ -381,12 +449,23 @@ function RemediesTab({ report }: { report: KundliReport }) {
   );
 }
 
-function MatchingTab({ maleForm, femaleForm, setMaleForm, setFemaleForm, onSubmit, loading, match }: { maleForm: typeof emptyForm; femaleForm: typeof emptyForm; setMaleForm: (form: typeof emptyForm) => void; setFemaleForm: (form: typeof emptyForm) => void; onSubmit: (event: FormEvent) => void; loading: string; match: MatchResult | null }) {
+function MatchingTab({ maleForm, femaleForm, setMaleForm, setFemaleForm, onSubmit, loading, match, error }: { maleForm: typeof emptyForm; femaleForm: typeof emptyForm; setMaleForm: (form: typeof emptyForm) => void; setFemaleForm: (form: typeof emptyForm) => void; onSubmit: (event: FormEvent) => void; loading: string; match: MatchResult | null; error: string }) {
   return (
     <section className="space-y-4">
       <form onSubmit={onSubmit} className="grid gap-4 rounded-[18px] border border-[#e7dff2] bg-white p-4 lg:grid-cols-2 shadow-[0_10px_24px_rgba(32,17,56,0.04)]">
         <MatchPerson title="Male Kundli" form={maleForm} setForm={setMaleForm} />
         <MatchPerson title="Female Kundli" form={femaleForm} setForm={setFemaleForm} />
+        
+        {error ? (
+          <div className="lg:col-span-2 flex items-start gap-2.5 rounded-[8px] bg-[#fff0f0] border border-red-200 px-3.5 py-3 text-[13px] text-[#b42318] shadow-sm">
+            <AlertCircle className="h-4 w-4 shrink-0 mt-0.5" />
+            <div className="text-left">
+              <p className="font-semibold">Matching Error</p>
+              <p className="mt-0.5 opacity-90 leading-relaxed">{error}</p>
+            </div>
+          </div>
+        ) : null}
+
         <button className="rounded-[8px] bg-[#4898E1] px-4 py-3 text-[13px] font-medium text-white lg:col-span-2 transition hover:bg-[#4898E1]/90 shadow-sm active:scale-[0.98]">{loading === "match" ? "Matching..." : "Generate Kundli Matching"}</button>
       </form>
       {match ? <CompatibilityResult match={match} /> : null}
