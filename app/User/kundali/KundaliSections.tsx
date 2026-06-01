@@ -316,32 +316,39 @@ export default function KundaliSections() {
         {error ? <ErrorBox title="Kundli Error" text={error} /> : null}
       </form>
 
-      <section className="grid grid-cols-2 gap-2 rounded-[14px] border border-[#e7dff2] bg-white p-2 shadow-[0_10px_24px_rgba(32,17,56,0.04)] sm:grid-cols-4">
-        {tabs.map((tab) => (
-          <button
-            key={tab}
-            type="button"
-            onClick={() => {
-              setActiveTab(tab);
-              scrollToSection(`kundli-${tab.toLowerCase()}`);
-            }}
-            className={
-              activeTab === tab
-                ? "rounded-[6px] bg-[#4898E1] px-4 py-2 text-[13px] font-medium text-white"
-                : "rounded-[6px] bg-[#f4f4f4] px-4 py-2 text-[13px] font-medium text-[#222]"
-            }
-          >
-            {tab}
-          </button>
-        ))}
-      </section>
-
       {!report ? (
-        <section className="rounded-[18px] border border-[#e7dff2] bg-white p-5 text-[14px] text-[#61576b]">
-          Generate a Kundli once. It will stay here while this browser tab is open, even if you visit another page and come back.
-        </section>
+        <MatchingSection
+          maleForm={maleForm}
+          femaleForm={femaleForm}
+          setMaleForm={setMaleForm}
+          setFemaleForm={setFemaleForm}
+          onSubmit={runMatch}
+          loading={loading}
+          match={match}
+          error={matchError}
+        />
       ) : (
         <>
+          <section className="grid grid-cols-2 gap-2 rounded-[14px] border border-[#e7dff2] bg-white p-2 shadow-[0_10px_24px_rgba(32,17,56,0.04)] sm:grid-cols-4">
+            {tabs.map((tab) => (
+              <button
+                key={tab}
+                type="button"
+                onClick={() => {
+                  setActiveTab(tab);
+                  scrollToSection(`kundli-${tab.toLowerCase()}`);
+                }}
+                className={
+                  activeTab === tab
+                    ? "rounded-[6px] bg-[#4898E1] px-4 py-2 text-[13px] font-medium text-white"
+                    : "rounded-[6px] bg-[#f4f4f4] px-4 py-2 text-[13px] font-medium text-[#222]"
+                }
+              >
+                {tab}
+              </button>
+            ))}
+          </section>
+
           <ChartSection report={report} />
           <DashaSection dashas={report.dasha} currentDashas={currentDashas} />
           <DoshaSection doshas={report.dosha} report={report} />
