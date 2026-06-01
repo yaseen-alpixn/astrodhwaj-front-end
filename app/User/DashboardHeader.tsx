@@ -17,11 +17,27 @@ function DashboardHeader() {
   const [hasUnread, setHasUnread] = useState(false);
 
   useEffect(() => {
+    // Instantly load cached profile from localStorage on mount
+    if (typeof window !== "undefined") {
+      const cached = localStorage.getItem("user_profile");
+      if (cached) {
+        try {
+          setProfile(JSON.parse(cached));
+        } catch (e) {
+          // ignore
+        }
+      }
+    }
+
     getProfile()
-      .then((response) => setProfile({
-        name: response.data.full_name,
-        avatarUrl: response.data.avatar_url || "/images/profile.svg",
-      }))
+      .then((response) => {
+        const newProfile = {
+          name: response.data.full_name,
+          avatarUrl: response.data.avatar_url || "/images/profile.svg",
+        };
+        setProfile(newProfile);
+        localStorage.setItem("user_profile", JSON.stringify(newProfile));
+      })
       .catch(() => undefined);
   }, []);
 
