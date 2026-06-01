@@ -1,7 +1,7 @@
 "use client";
 
-import { Calendar, Clock3, Download, Heart, MapPin, Star, UserRound } from "lucide-react";
-import { FormEvent, ReactNode, useMemo, useState } from "react";
+import { Calendar, Clock3, Download, Heart, MapPin, Star, UserRound, AlertCircle } from "lucide-react";
+import { FormEvent, ReactNode, useMemo, useState, useEffect, useRef } from "react";
 import { api } from "@/services/api";
 import KundaliChartArt from "./KundaliChartArt";
 
@@ -102,10 +102,10 @@ export default function KundaliSections() {
       <form onSubmit={generate} className="rounded-[18px] border border-[#e7dff2] bg-white p-4 shadow-[0_10px_24px_rgba(32,17,56,0.04)] sm:p-5">
         <h2 className="text-[18px] font-semibold text-[#171717]">Enter Your Birth Details</h2>
         <div className="mt-4 grid gap-4 md:grid-cols-2">
-          <Field icon={<UserRound className="h-4 w-4" />} label="Full Name" value={form.full_name} onChange={(value) => setForm({ ...form, full_name: value })} placeholder="Enter your full name" />
-          <Field icon={<Calendar className="h-4 w-4" />} label="Date of Birth" type="date" value={form.date_of_birth} onChange={(value) => setForm({ ...form, date_of_birth: value })} />
-          <Field icon={<Clock3 className="h-4 w-4" />} label="Time of Birth" type="time" value={form.time_of_birth} onChange={(value) => setForm({ ...form, time_of_birth: value })} />
-          <Field icon={<MapPin className="h-4 w-4" />} label="Place of Birth" value={form.place_of_birth} onChange={(value) => setForm({ ...form, place_of_birth: value })} placeholder="City, State, Country or lat,lng,tz" />
+          <Field icon={<UserRound className="h-4 w-4 text-[#7c7589]" />} label="Full Name" value={form.full_name} onChange={(value) => setForm({ ...form, full_name: value })} placeholder="Enter your full name" />
+          <Field icon={<Calendar className="h-4 w-4 text-[#7c7589]" />} label="Date of Birth" type="date" value={form.date_of_birth} onChange={(value) => setForm({ ...form, date_of_birth: value })} />
+          <Field icon={<Clock3 className="h-4 w-4 text-[#7c7589]" />} label="Time of Birth" type="time" value={form.time_of_birth} onChange={(value) => setForm({ ...form, time_of_birth: value })} />
+          <LocationField label="Place of Birth" value={form.place_of_birth} onChange={(value) => setForm({ ...form, place_of_birth: value })} />
         </div>
         <label className="mt-4 block max-w-full sm:max-w-[244px]">
           <span className="mb-1.5 block text-[14px] font-medium text-[#222]">Gender</span>
@@ -116,11 +116,20 @@ export default function KundaliSections() {
             <option>Other</option>
           </select>
         </label>
-        <button className="mt-4 inline-flex items-center gap-2 rounded-[8px] bg-[#4898E1] px-4 py-3 text-[13px] font-medium text-white">
+        <button className="mt-4 inline-flex items-center gap-2 rounded-[8px] bg-[#4898E1] px-4 py-3 text-[13px] font-medium text-white transition hover:bg-[#4898E1]/90 shadow-sm active:scale-[0.98]">
           <Star className="h-4 w-4" />
           {loading === "generate" ? "Generating..." : "Generate Kundli"}
         </button>
-        {error ? <p className="mt-3 rounded-[8px] bg-[#fff0f0] px-3 py-2 text-[13px] text-[#b42318]">{error}</p> : null}
+        
+        {error ? (
+          <div className="mt-4 flex items-start gap-2.5 rounded-[8px] bg-[#fff0f0] border border-red-200 px-3.5 py-3 text-[13px] text-[#b42318] shadow-sm">
+            <AlertCircle className="h-4 w-4 shrink-0 mt-0.5" />
+            <div>
+              <p className="font-semibold">Calculation Error</p>
+              <p className="mt-0.5 opacity-90 leading-relaxed">{error}</p>
+            </div>
+          </div>
+        ) : null}
       </form>
 
       <section className="grid grid-cols-2 gap-2 rounded-[14px] border border-[#e7dff2] bg-white p-2 shadow-[0_10px_24px_rgba(32,17,56,0.04)] md:grid-cols-7">
@@ -149,15 +158,135 @@ export default function KundaliSections() {
   );
 }
 
+// Fixed inputs: rendering Lucide icons on the LEFT side of the input box so they NEVER overlap with browser native calendar/clock pickers on the right
 function Field({ label, value, onChange, placeholder, type = "text", icon }: { label: string; value: string; onChange: (value: string) => void; placeholder?: string; type?: string; icon: ReactNode }) {
   return (
     <label className="block">
       <span className="mb-1.5 block text-[14px] font-medium text-[#222]">{label}</span>
-      <div className="flex h-11 items-center rounded-[8px] border border-[#cfc8da] px-3 text-sm text-[#7c7589]">
-        <input required type={type} value={value} onChange={(event) => onChange(event.target.value)} className="w-full bg-transparent text-[#32283f] outline-none" placeholder={placeholder} />
+      <div className="flex h-11 items-center rounded-[8px] border border-[#cfc8da] px-3 text-sm text-[#7c7589] gap-2 bg-white">
         {icon}
+        <input required type={type} value={value} onChange={(event) => onChange(event.target.value)} className="w-full bg-transparent text-[#32283f] outline-none" placeholder={placeholder} />
       </div>
     </label>
+  );
+}
+
+// New robust Location autocomplete suggestions component using the free OpenStreetMap Nominatim API
+function LocationField({ label, value, onChange, placeholder }: { label: string; value: string; onChange: (formattedValue: string) => void; placeholder?: string }) {
+  const [inputValue, setInputValue] = useState("");
+  const [suggestions, setSuggestions] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [showDropdown, setShowDropdown] = useState(false);
+  const debounceTimer = useRef<any>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  // Synchronize internal display text with current state value
+  useEffect(() => {
+    if (value) {
+      if (value.includes(",")) {
+        const parts = value.split(",");
+        if (parts.length >= 4) {
+          setInputValue(parts.slice(3).join(",").trim());
+          return;
+        }
+      }
+      setInputValue(value);
+    } else {
+      setInputValue("");
+    }
+  }, [value]);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+        setShowDropdown(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const handleSearch = (query: string) => {
+    setInputValue(query);
+    if (debounceTimer.current) clearTimeout(debounceTimer.current);
+
+    if (query.trim().length < 3) {
+      setSuggestions([]);
+      return;
+    }
+
+    setLoading(true);
+    debounceTimer.current = setTimeout(async () => {
+      try {
+        const response = await fetch(
+          `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&addressdetails=1&limit=5`,
+          {
+            headers: {
+              "Accept-Language": "en",
+            },
+          }
+        );
+        const data = await response.json();
+        setSuggestions(data || []);
+        setShowDropdown(true);
+      } catch (err) {
+        // ignore errors silently
+      } finally {
+        setLoading(false);
+      }
+    }, 450);
+  };
+
+  const handleSelect = (item: any) => {
+    const cityName = item.display_name;
+    const lat = item.lat;
+    const lon = item.lon;
+    // Calculate approximate timezone offset from longitude (15 degrees per hour) rounded to nearest 0.5 hour
+    const offset = Math.round((parseFloat(lon) / 15.0) * 2) / 2;
+    
+    // Format: "lat, lon, offset, cityName" to satisfy backend float coordinate parsing
+    const formatted = `${lat}, ${lon}, ${offset}, ${cityName}`;
+    onChange(formatted);
+    setInputValue(cityName);
+    setSuggestions([]);
+    setShowDropdown(false);
+  };
+
+  return (
+    <div ref={containerRef} className="relative block">
+      <span className="mb-1.5 block text-[14px] font-medium text-[#222]">{label}</span>
+      <div className="flex h-11 items-center rounded-[8px] border border-[#cfc8da] px-3 text-sm text-[#7c7589] gap-2 bg-white relative">
+        <MapPin className="h-4 w-4 shrink-0 text-[#7c7589]" />
+        <input
+          required
+          type="text"
+          value={inputValue}
+          onChange={(e) => handleSearch(e.target.value)}
+          onFocus={() => {
+            if (suggestions.length > 0) setShowDropdown(true);
+          }}
+          className="w-full bg-transparent text-[#32283f] outline-none"
+          placeholder={placeholder || "Search city of birth..."}
+        />
+        {loading && (
+          <span className="h-4 w-4 animate-spin rounded-full border-2 border-[#cfc8da] border-t-[#4898E1] shrink-0" />
+        )}
+      </div>
+
+      {showDropdown && suggestions.length > 0 && (
+        <ul className="absolute left-0 right-0 z-50 mt-1 max-h-56 overflow-y-auto rounded-[8px] border border-[#e7dff2] bg-white py-1 shadow-lg text-[13px] text-slate-700">
+          {suggestions.map((item, idx) => (
+            <li
+              key={idx}
+              onClick={() => handleSelect(item)}
+              className="cursor-pointer px-4 py-2 hover:bg-[#E8F4FF] hover:text-[#0D42AD] transition duration-150 text-left"
+            >
+              {item.display_name}
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
   );
 }
 
@@ -255,10 +384,10 @@ function RemediesTab({ report }: { report: KundliReport }) {
 function MatchingTab({ maleForm, femaleForm, setMaleForm, setFemaleForm, onSubmit, loading, match }: { maleForm: typeof emptyForm; femaleForm: typeof emptyForm; setMaleForm: (form: typeof emptyForm) => void; setFemaleForm: (form: typeof emptyForm) => void; onSubmit: (event: FormEvent) => void; loading: string; match: MatchResult | null }) {
   return (
     <section className="space-y-4">
-      <form onSubmit={onSubmit} className="grid gap-4 rounded-[18px] border border-[#e7dff2] bg-white p-4 lg:grid-cols-2">
+      <form onSubmit={onSubmit} className="grid gap-4 rounded-[18px] border border-[#e7dff2] bg-white p-4 lg:grid-cols-2 shadow-[0_10px_24px_rgba(32,17,56,0.04)]">
         <MatchPerson title="Male Kundli" form={maleForm} setForm={setMaleForm} />
         <MatchPerson title="Female Kundli" form={femaleForm} setForm={setFemaleForm} />
-        <button className="rounded-[8px] bg-[#4898E1] px-4 py-3 text-[13px] font-medium text-white lg:col-span-2">{loading === "match" ? "Matching..." : "Generate Kundli Matching"}</button>
+        <button className="rounded-[8px] bg-[#4898E1] px-4 py-3 text-[13px] font-medium text-white lg:col-span-2 transition hover:bg-[#4898E1]/90 shadow-sm active:scale-[0.98]">{loading === "match" ? "Matching..." : "Generate Kundli Matching"}</button>
       </form>
       {match ? <CompatibilityResult match={match} /> : null}
     </section>
@@ -268,12 +397,12 @@ function MatchingTab({ maleForm, femaleForm, setMaleForm, setFemaleForm, onSubmi
 function MatchPerson({ title, form, setForm }: { title: string; form: typeof emptyForm; setForm: (form: typeof emptyForm) => void }) {
   return (
     <div className="space-y-3">
-      <h3 className="font-medium">{title}</h3>
-      <Field icon={<UserRound className="h-4 w-4" />} label="Full Name" value={form.full_name} onChange={(value) => setForm({ ...form, full_name: value })} />
-      <Field icon={<Calendar className="h-4 w-4" />} label="Date of Birth" type="date" value={form.date_of_birth} onChange={(value) => setForm({ ...form, date_of_birth: value })} />
-      <Field icon={<Clock3 className="h-4 w-4" />} label="Time of Birth" type="time" value={form.time_of_birth} onChange={(value) => setForm({ ...form, time_of_birth: value })} />
-      <Field icon={<MapPin className="h-4 w-4" />} label="Place of Birth" value={form.place_of_birth} onChange={(value) => setForm({ ...form, place_of_birth: value })} />
-      <select required value={form.gender} onChange={(event) => setForm({ ...form, gender: event.target.value })} className="h-11 w-full rounded-[8px] border border-[#cfc8da] px-3 text-sm"><option value="">Gender</option><option>Male</option><option>Female</option><option>Other</option></select>
+      <h3 className="font-medium text-left">{title}</h3>
+      <Field icon={<UserRound className="h-4 w-4 text-[#7c7589]" />} label="Full Name" value={form.full_name} onChange={(value) => setForm({ ...form, full_name: value })} />
+      <Field icon={<Calendar className="h-4 w-4 text-[#7c7589]" />} label="Date of Birth" type="date" value={form.date_of_birth} onChange={(value) => setForm({ ...form, date_of_birth: value })} />
+      <Field icon={<Clock3 className="h-4 w-4 text-[#7c7589]" />} label="Time of Birth" type="time" value={form.time_of_birth} onChange={(value) => setForm({ ...form, time_of_birth: value })} />
+      <LocationField label="Place of Birth" value={form.place_of_birth} onChange={(value) => setForm({ ...form, place_of_birth: value })} />
+      <select required value={form.gender} onChange={(event) => setForm({ ...form, gender: event.target.value })} className="h-11 w-full rounded-[8px] border border-[#cfc8da] px-3 text-sm text-[#32283f] outline-none bg-white"><option value="">Gender</option><option>Male</option><option>Female</option><option>Other</option></select>
     </div>
   );
 }
