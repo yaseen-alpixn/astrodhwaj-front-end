@@ -7,64 +7,41 @@ import NumerologyGrid from "@/app/User/Numerology/NumerologyGrid";
 import NumerologyInsights from "@/app/User/Numerology/NumerologyInsights";
 import { calculateNumerology, type NumerologyResult } from "@/services/numerology.service";
 
-// Working initial demo data for 'yaseen' with DOB '31-05-2026'
-const DEMO_GRID = [
-  { id: 4, value: "4", detail: "4", filled: true },
+// Empty initial industrial state
+const EMPTY_GRID = [
+  { id: 4, value: "4", detail: "", filled: false },
   { id: 9, value: "9", detail: "", filled: false },
-  { id: 2, value: "2", detail: "222", filled: true },
-  { id: 3, value: "3", detail: "3", filled: true },
-  { id: 5, value: "5", detail: "5", filled: true },
+  { id: 2, value: "2", detail: "", filled: false },
+  { id: 3, value: "3", detail: "", filled: false },
+  { id: 5, value: "5", detail: "", filled: false },
   { id: 7, value: "7", detail: "", filled: false },
   { id: 8, value: "8", detail: "", filled: false },
-  { id: 1, value: "1", detail: "11", filled: true },
-  { id: 6, value: "6", detail: "6", filled: true },
+  { id: 1, value: "1", detail: "", filled: false },
+  { id: 6, value: "6", detail: "", filled: false },
 ];
 
-const DEMO_BREAKDOWN = [
-  { letter: "Y", value: 1, type: "Consonant" },
-  { letter: "A", value: 1, type: "Vowel" },
-  { letter: "S", value: 3, type: "Consonant" },
-  { letter: "E", value: 5, type: "Vowel" },
-  { letter: "E", value: 5, type: "Vowel" },
-  { letter: "N", value: 5, type: "Consonant" },
-];
-
-const DEMO_METRICS = [
-  { label: "Name Number", value: "2", src: "/images/Num1.png" },
-  { label: "Soul Number", value: "2", src: "/images/Num2.png" },
-  { label: "Personality Number", value: "9", src: "/images/Num3.png" },
-  { label: "Destiny Number / Conductor Number", value: "1", src: "/images/NumStar.png" },
-];
-
-const DEMO_INSIGHTS = [
-  {
-    title: "1. Name Number 2",
-    description: "Cooperation, harmony, diplomacy, and emotional sensitivity. You excel in partnerships and team environments.",
-  },
-  {
-    title: "2. Soul Number 2",
-    description: "Cooperation, harmony, diplomacy, and emotional sensitivity. You seek peaceful, harmonious relationships and emotional security.",
-  },
-  {
-    title: "3. Life Path Number 4",
-    description: "Stability, discipline, structure, and practical effort. You are grounded, organized, and focused on building solid foundations.",
-  },
+const EMPTY_METRICS = [
+  { label: "Name Number", value: "-", src: "/images/Num1.png" },
+  { label: "Soul Number", value: "-", src: "/images/Num2.png" },
+  { label: "Personality Number", value: "-", src: "/images/Num3.png" },
+  { label: "Destiny Number / Conductor Number", value: "-", src: "/images/NumStar.png" },
 ];
 
 export default function NumerologyPage() {
-  const [fullName, setFullName] = useState("yaseen");
-  const [birthDate, setBirthDate] = useState("2026-05-31");
+  const [fullName, setFullName] = useState("");
+  const [birthDate, setBirthDate] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [calculated, setCalculated] = useState(false);
   const [result, setResult] = useState<NumerologyResult>({
-    metrics: DEMO_METRICS,
-    grid: DEMO_GRID,
-    insights: DEMO_INSIGHTS,
-    name_breakdown: DEMO_BREAKDOWN,
-    driver_number: 4,
-    conductor_number: 1,
-    life_path_number: 4,
-    destiny_number: 1,
+    metrics: EMPTY_METRICS,
+    grid: EMPTY_GRID,
+    insights: [],
+    name_breakdown: [],
+    driver_number: undefined,
+    conductor_number: undefined,
+    life_path_number: undefined,
+    destiny_number: undefined,
   });
 
   const handleCalculate = async () => {
@@ -78,6 +55,7 @@ export default function NumerologyPage() {
     try {
       const data = await calculateNumerology(fullName, birthDate);
       setResult(data);
+      setCalculated(true);
     } catch (err) {
       setError((err as Error).message);
     } finally {
@@ -187,7 +165,7 @@ export default function NumerologyPage() {
             <div className="rounded-[24px] border border-[#e5e7eb] bg-white px-5 py-6 shadow-[0_20px_60px_rgba(72,152,225,0.08)] sm:px-6 h-[395px] overflow-hidden flex flex-col">
               <h3 className="text-[16px] font-bold text-[#18171d] mb-4">Name Calculation</h3>
               <div className="overflow-y-auto flex-1 pr-1">
-                {result.name_breakdown && result.name_breakdown.length > 0 ? (
+                {calculated && result.name_breakdown && result.name_breakdown.length > 0 ? (
                   <table className="w-full border-collapse text-left text-[13px]">
                     <thead>
                       <tr className="border-b border-slate-100 text-slate-400 font-semibold uppercase tracking-wider">
@@ -217,8 +195,12 @@ export default function NumerologyPage() {
                     </tbody>
                   </table>
                 ) : (
-                  <div className="flex h-full items-center justify-center text-slate-400 text-[13px]">
-                    Enter details to see letter breakdown.
+                  <div className="flex h-full flex-col items-center justify-center text-slate-400 text-[13px] py-12">
+                    <span className="text-3xl mb-2">✍️</span>
+                    <p className="font-semibold text-slate-500">Awaiting Name Input</p>
+                    <p className="text-slate-400/80 text-[11px] text-center max-w-[180px] mt-0.5">
+                      Enter your full name above to see the Chaldean letter-by-letter breakdown.
+                    </p>
                   </div>
                 )}
               </div>
@@ -230,12 +212,12 @@ export default function NumerologyPage() {
               <div className="flex items-center gap-8 justify-around bg-slate-50/50 p-4 rounded-2xl border border-slate-100/60">
                 <div className="text-center">
                   <span className="text-[11px] font-bold text-slate-400 uppercase tracking-widest block mb-1">Life Path</span>
-                  <span className="text-[34px] font-black text-rose-500 leading-none">{result.life_path_number ?? 4}</span>
+                  <span className="text-[34px] font-black text-rose-500 leading-none">{calculated ? (result.life_path_number ?? "-") : "-"}</span>
                 </div>
                 <div className="h-10 w-px bg-slate-200" />
                 <div className="text-center">
                   <span className="text-[11px] font-bold text-slate-400 uppercase tracking-widest block mb-1">Driver</span>
-                  <span className="text-[34px] font-black text-rose-500 leading-none">{result.driver_number ?? 4}</span>
+                  <span className="text-[34px] font-black text-rose-500 leading-none">{calculated ? (result.driver_number ?? "-") : "-"}</span>
                 </div>
               </div>
             </div>
@@ -246,7 +228,7 @@ export default function NumerologyPage() {
               <div className="flex items-center gap-8 justify-around bg-slate-50/50 p-4 rounded-2xl border border-slate-100/60">
                 <div className="text-center w-full">
                   <span className="text-[11px] font-bold text-slate-400 uppercase tracking-widest block mb-1 font-semibold text-slate-500">Destiny / Conductor</span>
-                  <span className="text-[34px] font-black text-indigo-600 leading-none block mt-1.5">{result.conductor_number ?? 1}</span>
+                  <span className="text-[34px] font-black text-indigo-600 leading-none block mt-1.5">{calculated ? (result.conductor_number ?? "-") : "-"}</span>
                 </div>
               </div>
             </div>
@@ -261,7 +243,6 @@ export default function NumerologyPage() {
                   key={metric.label}
                   className="relative rounded-[22px] bg-gradient-to-r from-[#0180D5] via-[#4898E1] to-[#0D42AD] p-5 text-white shadow-[0_16px_36px_rgba(13,66,173,0.18)] flex items-center justify-between transition hover:scale-[1.01] hover:shadow-[0_20px_45px_rgba(13,66,173,0.25)] overflow-hidden group"
                 >
-                  {/* Subtle hover background glow */}
                   <div className="absolute inset-0 bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
                   
                   <div>
@@ -287,7 +268,17 @@ export default function NumerologyPage() {
         </div>
 
         {/* Insights Section at the Bottom */}
-        <NumerologyInsights insights={result.insights} />
+        {calculated && result.insights && result.insights.length > 0 ? (
+          <NumerologyInsights insights={result.insights} />
+        ) : (
+          <div className="rounded-[24px] border border-[#e5e7eb] bg-white px-5 py-8 shadow-[0_20px_60px_rgba(72,152,225,0.08)] sm:px-6 text-center">
+            <span className="text-4xl mb-3 block">📜</span>
+            <h3 className="text-[16px] font-bold text-slate-700 mb-1">Your Numerology Profile</h3>
+            <p className="text-slate-400 text-[13px] max-w-[380px] mx-auto leading-relaxed">
+              Enter your full name and date of birth in the form above and click <strong>Calculate Number</strong> to generate your comprehensive Chaldean & Vedic Lo Shu profile.
+            </p>
+          </div>
+        )}
         
       </div>
     </main>
