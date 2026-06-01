@@ -101,12 +101,8 @@ const severityTone: Record<Severity, { card: string; badge: string }> = {
 function readStoredState(): StoredKundliState {
   const fallback = { form: emptyForm, maleForm: emptyForm, femaleForm: emptyForm, report: null, match: null };
   if (typeof window === "undefined") return fallback;
-  if (!getToken("user")) {
-    sessionStorage.removeItem(STORAGE_KEY);
-    return fallback;
-  }
   try {
-    return { ...fallback, ...JSON.parse(sessionStorage.getItem(STORAGE_KEY) || "{}") };
+    return { ...fallback, ...JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}") };
   } catch {
     return fallback;
   }
@@ -114,7 +110,7 @@ function readStoredState(): StoredKundliState {
 
 function saveStoredState(nextState: StoredKundliState) {
   if (typeof window === "undefined") return;
-  sessionStorage.setItem(STORAGE_KEY, JSON.stringify(nextState));
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(nextState));
 }
 
 function scrollToSection(id: string) {
@@ -179,7 +175,7 @@ export default function KundaliSections() {
   function newKundli() {
     const cleared = { form: emptyForm, maleForm: emptyForm, femaleForm: emptyForm, report: null, match: null };
     storedRef.current = cleared;
-    sessionStorage.removeItem(STORAGE_KEY);
+    localStorage.removeItem(STORAGE_KEY);
     setFormState(emptyForm);
     setMaleFormState(emptyForm);
     setFemaleFormState(emptyForm);
@@ -346,10 +342,10 @@ export default function KundaliSections() {
         </section>
       ) : (
         <>
-          <ChartSection report={report} onPdf={downloadPdf} loading={loading} />
-          <DashaSection dashas={report.dasha} currentDashas={currentDashas} onPdf={downloadPdf} loading={loading} />
-          <DoshaSection doshas={report.dosha} onPdf={downloadPdf} loading={loading} report={report} />
-          <PlanetSection planets={report.planet_positions} onPdf={downloadPdf} loading={loading} />
+          <ChartSection report={report} />
+          <DashaSection dashas={report.dasha} currentDashas={currentDashas} />
+          <DoshaSection doshas={report.dosha} report={report} />
+          <PlanetSection planets={report.planet_positions} />
           <MatchingSection
             maleForm={maleForm}
             femaleForm={femaleForm}
@@ -537,7 +533,7 @@ function readablePlace(value: string) {
   return value;
 }
 
-function ChartSection({ report, onPdf, loading }: { report: KundliReport; onPdf: () => void; loading: string }) {
+function ChartSection({ report }: { report: KundliReport }) {
   return (
     <section id="kundli-chart" className="space-y-4 scroll-mt-5">
       <div className="grid gap-4 lg:grid-cols-2">
@@ -554,7 +550,7 @@ function ChartSection({ report, onPdf, loading }: { report: KundliReport; onPdf:
           <KundaliChartArt variant="chandra" houses={report.chart.chandra} />
         </article>
       </div>
-      <ActionButtons onPdf={onPdf} loading={loading} />
+      <ActionButtons />
     </section>
   );
 }
@@ -562,13 +558,9 @@ function ChartSection({ report, onPdf, loading }: { report: KundliReport; onPdf:
 function DashaSection({
   dashas,
   currentDashas,
-  onPdf,
-  loading,
 }: {
   dashas: Dasha[];
   currentDashas: Dasha[];
-  onPdf: () => void;
-  loading: string;
 }) {
   const visible = dashas.filter((item) => item.level === "mahadasha" || item.is_current).slice(0, 8);
   return (
@@ -606,20 +598,15 @@ function DashaSection({
           {currentDashas.map((item) => (item.parent_planet ? `${item.parent_planet}-${item.planet}` : item.planet)).join(", ")}
         </div>
       ) : null}
-      <SmallActions onPdf={onPdf} loading={loading} />
     </section>
   );
 }
 
 function DoshaSection({
   doshas,
-  onPdf,
-  loading,
   report,
 }: {
   doshas: Dosha[];
-  onPdf: () => void;
-  loading: string;
   report: KundliReport;
 }) {
   return (
@@ -642,12 +629,11 @@ function DoshaSection({
         })}
       </div>
       <RemediesPanel report={report} />
-      <SmallActions onPdf={onPdf} loading={loading} />
     </section>
   );
 }
 
-function PlanetSection({ planets, onPdf, loading }: { planets: Planet[]; onPdf: () => void; loading: string }) {
+function PlanetSection({ planets }: { planets: Planet[] }) {
   return (
     <section id="kundli-planets" className="space-y-4 scroll-mt-5">
       <h2 className="font-medium">Planetary Positions</h2>
@@ -676,7 +662,6 @@ function PlanetSection({ planets, onPdf, loading }: { planets: Planet[]; onPdf: 
           </article>
         ))}
       </div>
-      <SmallActions onPdf={onPdf} loading={loading} />
     </section>
   );
 }
@@ -834,54 +819,15 @@ function PdfSection({ onPdf, loading }: { onPdf: () => void; loading: string }) 
   );
 }
 
-function ActionButtons({ onPdf, loading }: { onPdf: () => void; loading: string }) {
+function ActionButtons() {
   return (
-    <div className="grid gap-2 sm:grid-cols-3">
+    <div className="flex gap-2">
       <button
         type="button"
         onClick={() => scrollToSection("kundli-matching")}
-        className="rounded-[8px] bg-[#4898E1] px-4 py-3 text-[13px] font-medium text-white"
+        className="rounded-[8px] bg-[#4898E1] px-5 py-3 text-[13px] font-medium text-white transition hover:bg-[#4898E1]/90 shadow-sm active:scale-[0.98]"
       >
         Get Kundli Matching
-      </button>
-      <button
-        type="button"
-        onClick={() => {
-          window.location.href = "/User/Astrologers";
-        }}
-        className="rounded-[8px] border border-[#4898E1] px-4 py-3 text-[12px] font-medium"
-      >
-        Consult Expert
-      </button>
-      <button
-        type="button"
-        onClick={onPdf}
-        className="rounded-[8px] border border-[#4898E1] px-4 py-3 text-[12px] font-medium"
-      >
-        {loading === "pdf" ? "Preparing..." : "Download"}
-      </button>
-    </div>
-  );
-}
-
-function SmallActions({ onPdf, loading }: { onPdf: () => void; loading: string }) {
-  return (
-    <div className="grid max-w-full gap-2 sm:grid-cols-2 lg:max-w-[520px]">
-      <button
-        type="button"
-        onClick={() => {
-          window.location.href = "/User/Astrologers";
-        }}
-        className="rounded-[8px] bg-[#4898E1] px-4 py-3 text-[13px] font-medium text-white"
-      >
-        Consult Expert
-      </button>
-      <button
-        type="button"
-        onClick={onPdf}
-        className="rounded-[8px] border border-[#4898E1] px-4 py-3 text-[12px] font-medium"
-      >
-        {loading === "pdf" ? "Preparing..." : "Download"}
       </button>
     </div>
   );
