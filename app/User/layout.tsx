@@ -12,7 +12,7 @@ export default function UserLayout({ children }: UserLayoutProps) {
   return (
     <AuthGuard allowedScope="user" fallbackUrl="/login/user">
       <div className="min-h-svh bg-[#fcfbff]">
-        <div className="flex min-h-svh flex-col md:flex-row md:">
+        <div className="flex min-h-svh flex-col md:flex-row">
           <DashboardSidebar />
           <div className="flex-1 md:ml-[220px]">
             <DashboardHeader />

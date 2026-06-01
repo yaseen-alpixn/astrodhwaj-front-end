@@ -6,7 +6,7 @@ type NumerologyGridProps = {
 
 export default function NumerologyGrid({ grid }: NumerologyGridProps) {
   return (
-    <div className="rounded-[24px] border border-[#e5e7eb] bg-white px-5 py-6 shadow-[0_20px_60px_rgba(72,152,225,0.08)] sm:px-6 h-full flex flex-col justify-between">
+    <div className="rounded-[24px] border border-[#e5e7eb] bg-white px-5 py-6 shadow-[0_20px_60px_rgba(72,152,225,0.08)] sm:px-6">
       <div>
         <h3 className="text-[16px] font-bold text-[#18171d] mb-4">Lo Shu Grid</h3>
       </div>

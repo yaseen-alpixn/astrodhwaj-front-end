@@ -90,7 +90,7 @@ export default function NumerologyPage() {
       <div className="mx-auto max-w-[1320px] space-y-8">
         
         {/* Main Grid Section (Chaldean Vedic Numerology Layout) */}
-        <div className="grid gap-6 lg:grid-cols-3">
+        <div className="grid gap-6 grid-cols-1 xl:grid-cols-3">
           
           {/* Column 1: Inputs, Lo Shu Grid, Static Conversion Chart */}
           <div className="space-y-6">
