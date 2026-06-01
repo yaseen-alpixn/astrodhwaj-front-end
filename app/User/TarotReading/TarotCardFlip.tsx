@@ -10,6 +10,10 @@ interface TarotCardFlipProps {
 }
 
 // Placeholder SVG for when Cloudinary image fails to load
+function svgToDataUri(svg: string): string {
+  return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
+}
+
 function buildPlaceholderSvg(name: string, index: number): string {
   const hues = [270, 45, 190];
   const hue = hues[index % hues.length];
@@ -26,7 +30,7 @@ function buildPlaceholderSvg(name: string, index: number): string {
     <text x="150" y="210" font-family="serif" font-size="80" fill="hsl(${hue},60%,65%)" text-anchor="middle" opacity="0.7">${initial}</text>
     <text x="150" y="270" font-family="serif" font-size="14" fill="hsl(${hue},40%,70%)" text-anchor="middle" opacity="0.5">✦ ✦ ✦</text>
   </svg>`.trim();
-  return `data:image/svg+xml;base64,${btoa(unescape(encodeURIComponent(svg)))}`;
+  return svgToDataUri(svg);
 }
 
 const POSITION_LABELS: Record<string, string> = {
@@ -43,7 +47,7 @@ const POSITION_COLORS: Record<string, string> = {
   focus: "from-[#4898E1] to-[#0D42AD]",
 };
 
-const CARD_BACK_SVG = `data:image/svg+xml;base64,${btoa(`<svg xmlns="http://www.w3.org/2000/svg" width="300" height="450" viewBox="0 0 300 450">
+const CARD_BACK_SVG = svgToDataUri(`<svg xmlns="http://www.w3.org/2000/svg" width="300" height="450" viewBox="0 0 300 450">
   <defs>
     <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
       <stop offset="0%" style="stop-color:#0D42AD" />
@@ -56,7 +60,7 @@ const CARD_BACK_SVG = `data:image/svg+xml;base64,${btoa(`<svg xmlns="http://www.
   <circle cx="150" cy="225" r="55" fill="none" stroke="rgba(255,255,255,0.12)" stroke-width="1"/>
   <text x="150" y="240" font-family="serif" font-size="55" fill="rgba(255,255,255,0.35)" text-anchor="middle">✦</text>
   <text x="150" y="290" font-family="serif" font-size="12" fill="rgba(255,255,255,0.25)" text-anchor="middle" letter-spacing="4">· · · · ·</text>
-</svg>`)}`;
+</svg>`);
 
 export default function TarotCardFlip({ card, index, revealed }: TarotCardFlipProps) {
   const [flipped, setFlipped] = useState(false);

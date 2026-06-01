@@ -1,9 +1,15 @@
 import { numerologyMetrics } from "@/app/User/Numerology/numerologyData";
+import type { NumerologyMetric } from "@/app/User/Numerology/numerologyData";
 import Image from "next/image";
-export default function NumerologyMetricCards() {
+
+type NumerologyMetricCardsProps = {
+  metrics?: NumerologyMetric[];
+};
+
+export default function NumerologyMetricCards({ metrics = numerologyMetrics }: NumerologyMetricCardsProps) {
   return (
     <section className="grid gap-4 sm:grid-cols-5 xl:grid-cols-5">
-      {numerologyMetrics.map(({ label, value, src: src }) => (
+      {metrics.map(({ label, value, src: src }) => (
         <article
           key={label}
           className="rounded-[18px] bg-[linear-gradient(180deg,#0085FF_0%,#DD9A29_100%)] px-5 py-4 text-center text-white shadow-[0_16px_36px_rgba(127,16,154,0.2)]"

@@ -2,8 +2,13 @@ import {
   numerologyForm,
   numerologyInsights,
 } from "@/app/User/Numerology/numerologyData";
+import type { NumerologyInsight } from "@/app/User/Numerology/numerologyData";
 
-export default function NumerologyInsights() {
+type NumerologyInsightsProps = {
+  insights?: NumerologyInsight[];
+};
+
+export default function NumerologyInsights({ insights = numerologyInsights }: NumerologyInsightsProps) {
   const NoteIcon = numerologyForm.noteIcon;
 
   return (
@@ -24,7 +29,7 @@ export default function NumerologyInsights() {
         </h3>
 
         <div className="mt-5 space-y-5">
-          {numerologyInsights.map(({ title, description }) => (
+          {insights.map(({ title, description }) => (
             <article key={title}>
               <h4 className="text-[16px] font-semibold tracking-[-0.03em] text-[#121212]">
                 {title}

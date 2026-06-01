@@ -1,9 +1,14 @@
 import { numerologyGrid } from "@/app/User/Numerology/numerologyData";
+import type { NumerologyGridCell } from "@/app/User/Numerology/numerologyData";
 
-export default function NumerologyGrid() {
+type NumerologyGridProps = {
+  grid?: NumerologyGridCell[];
+};
+
+export default function NumerologyGrid({ grid = numerologyGrid }: NumerologyGridProps) {
   return (
     <section className="grid gap-4 md:grid-cols-3">
-      {numerologyGrid.map(({ id, value, detail, tertiary, filled }) => (
+      {grid.map(({ id, value, detail, tertiary, filled }) => (
         <article
           key={id}
           className={

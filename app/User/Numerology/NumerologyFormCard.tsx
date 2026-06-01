@@ -1,6 +1,24 @@
 import { numerologyForm } from "@/app/User/Numerology/numerologyData";
 
-export default function NumerologyFormCard() {
+type NumerologyFormCardProps = {
+  birthDate: string;
+  error?: string;
+  fullName: string;
+  loading?: boolean;
+  onBirthDateChange: (value: string) => void;
+  onFullNameChange: (value: string) => void;
+  onSubmit: () => void;
+};
+
+export default function NumerologyFormCard({
+  birthDate,
+  error,
+  fullName,
+  loading = false,
+  onBirthDateChange,
+  onFullNameChange,
+  onSubmit,
+}: NumerologyFormCardProps) {
   const ButtonIcon = numerologyForm.buttonIcon;
 
   return (
@@ -11,15 +29,23 @@ export default function NumerologyFormCard() {
 
       <div className="mt-3 grid gap-5 lg:grid-cols-2">
         {numerologyForm.fields.map(
-          ({ label, placeholder, type, icon: Icon }) => (
+          ({ label, placeholder, type, icon: Icon }) => {
+            const isBirthDate = label === "Date of Birth";
+            return (
             <label key={label} className="block">
               <span className="mb-2.5 block text-[14px] font-medium text-[#25242b]">
                 {label}
               </span>
               <span className="flex h-11 items-center rounded-[14px] border border-black/25 bg-white px-4">
                 <input
-                  type={type}
+                  type={isBirthDate ? "date" : type}
                   placeholder={placeholder}
+                  value={isBirthDate ? birthDate : fullName}
+                  onChange={(event) =>
+                    isBirthDate
+                      ? onBirthDateChange(event.target.value)
+                      : onFullNameChange(event.target.value)
+                  }
                   className="w-full bg-transparent text-[13px] font-normal text-[#1d1d1d] outline-none placeholder:text-[#7d7886]"
                 />
                 {Icon ? (
@@ -30,17 +56,25 @@ export default function NumerologyFormCard() {
                 ) : null}
               </span>
             </label>
-          ),
+          )},
         )}
       </div>
+
+      {error ? (
+        <p className="mt-3 text-center text-[13px] font-medium text-red-600">
+          {error}
+        </p>
+      ) : null}
 
       <div className="mt-5 flex justify-center">
         <button
           type="button"
+          onClick={onSubmit}
+          disabled={loading}
           className="inline-flex min-h-11 items-center justify-center gap-2 rounded-[12px] bg-[#DD9A29] px-7 py-3 text-[13px] font-medium text-white shadow-[0_14px_30px_rgba(246,201,0,0.24)] transition-transform hover:translate-y-[-1px] sm:min-w-[264px]"
         >
           <ButtonIcon className="h-5 w-5" strokeWidth={2.2} />
-          <span>{numerologyForm.buttonLabel}</span>
+          <span>{loading ? "Calculating..." : numerologyForm.buttonLabel}</span>
         </button>
       </div>
     </section>
