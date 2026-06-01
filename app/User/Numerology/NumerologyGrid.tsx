@@ -1,35 +1,25 @@
-import { numerologyGrid } from "@/app/User/Numerology/numerologyData";
 import type { NumerologyGridCell } from "@/app/User/Numerology/numerologyData";
 
 type NumerologyGridProps = {
-  grid?: NumerologyGridCell[];
+  grid: NumerologyGridCell[];
 };
 
-export default function NumerologyGrid({ grid = numerologyGrid }: NumerologyGridProps) {
+export default function NumerologyGrid({ grid }: NumerologyGridProps) {
   return (
-    <section className="grid gap-4 md:grid-cols-3">
-      {grid.map(({ id, value, detail, tertiary, filled }) => (
-        <article
-          key={id}
-          className={
-            filled
-              ? "rounded-[16px] bg-[linear-gradient(135deg,#0180D5_0%,#0180D5_52%,#0040C1_100%)] px-6 py-4 text-center text-white shadow-[0_14px_34px_rgba(191,77,67,0.16)]"
-              : "rounded-[16px] bg-[#eeeeef] px-6 py-4 text-center text-[#171717]"
-          }
-        >
-          <p className="text-[16px] font-semibold leading-none tracking-[-0.04em]">
-            {value}
-          </p>
-          <p className="mt-2 text-[16px] font-semibold leading-none">
-            {detail}
-          </p>
-          {tertiary ? (
-            <p className="mt-2 text-[12px] font-normal leading-none">
-              {tertiary}
-            </p>
-          ) : null}
-        </article>
-      ))}
-    </section>
+    <div className="rounded-[24px] border border-[#e5e7eb] bg-white px-5 py-6 shadow-[0_20px_60px_rgba(72,152,225,0.08)] sm:px-6 h-full flex flex-col justify-between">
+      <div>
+        <h3 className="text-[16px] font-bold text-[#18171d] mb-4">Lo Shu Grid</h3>
+      </div>
+      <div className="grid grid-cols-3 gap-3 border border-slate-200 bg-slate-50/50 p-3 rounded-2xl aspect-square w-full max-w-[280px] mx-auto">
+        {grid.map((cell) => (
+          <div
+            key={cell.id}
+            className="flex items-center justify-center border border-slate-200/80 rounded-xl bg-white aspect-square text-[22px] font-extrabold text-[#0D42AD] shadow-sm"
+          >
+            {cell.detail || ""}
+          </div>
+        ))}
+      </div>
+    </div>
   );
 }

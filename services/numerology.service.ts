@@ -5,10 +5,21 @@ import type {
   NumerologyMetric,
 } from "@/app/User/Numerology/numerologyData";
 
+export type NameBreakdownLetter = {
+  letter: string;
+  value: number;
+  type: string;
+};
+
 export type NumerologyResult = {
   metrics: NumerologyMetric[];
   grid: NumerologyGridCell[];
   insights: NumerologyInsight[];
+  name_breakdown?: NameBreakdownLetter[];
+  driver_number?: number;
+  conductor_number?: number;
+  life_path_number?: number;
+  destiny_number?: number;
 };
 
 export async function calculateNumerology(

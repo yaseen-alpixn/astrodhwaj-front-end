@@ -96,9 +96,8 @@ export default function TarotCardFlip({ card, index, revealed }: TarotCardFlipPr
 
       {/* Flip Card */}
       <div
-        className="relative w-full"
+        className="relative w-full max-w-[200px] aspect-[2/3] mx-auto"
         style={{
-          height: "260px",
           transformStyle: "preserve-3d",
           transition: "transform 0.7s cubic-bezier(0.4, 0, 0.2, 1)",
           transform: flipped ? "rotateY(180deg)" : "rotateY(0deg)",

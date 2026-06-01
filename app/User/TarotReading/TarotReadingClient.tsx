@@ -181,24 +181,19 @@ export default function TarotReadingClient() {
         {!showResults && (
           <section aria-label="Choose a reading category" className="space-y-3">
             <h3 className="text-[15px] font-semibold text-[#18161e]">
-              What guidance do you seek?
+              Your reading will cover three crucial domains of your life:
             </h3>
 
             <div className="flex flex-col gap-3 sm:flex-row">
-              {CATEGORIES.map(({ key, label, description, Icon, gradient, activeRing, src }) => {
-                const isActive = selectedCategory === key;
+              {CATEGORIES.map(({ key, label, description, Icon, gradient, src }) => {
                 return (
-                  <button
+                  <div
                     key={key}
-                    type="button"
-                    onClick={() => setSelectedCategory(key)}
-                    disabled={isLoading}
-                    aria-pressed={isActive}
                     className={`
                       flex flex-1 items-center gap-3 rounded-[18px] px-4 py-4 text-white text-left
                       transition-all duration-200
                       ${gradient}
-                      ${isActive ? `${activeRing} shadow-[0_8px_30px_rgba(107,23,215,0.25)] scale-[1.02]` : "opacity-80 hover:opacity-100 hover:scale-[1.01]"}
+                      shadow-[0_8px_30px_rgba(13,66,173,0.15)] hover:scale-[1.01]
                     `}
                   >
                     <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white/20">
@@ -217,11 +212,7 @@ export default function TarotReadingClient() {
                         {description}
                       </p>
                     </div>
-                    <ChevronRight
-                      className={`h-5 w-5 shrink-0 transition-transform ${isActive ? "translate-x-0.5 text-white" : "text-white/50"}`}
-                      strokeWidth={2}
-                    />
-                  </button>
+                  </div>
                 );
               })}
             </div>
@@ -277,7 +268,7 @@ export default function TarotReadingClient() {
               <div className="inline-flex items-center gap-2 rounded-full bg-[#E8F4FF] px-4 py-1.5">
                 <Sparkles className="h-4 w-4 text-[#4898E1]" strokeWidth={2} />
                 <span className="text-[13px] font-semibold text-[#0D42AD] capitalize">
-                  {CATEGORIES.find((c) => c.key === selectedCategory)?.label} Reading
+                  Full Three-Domain Reading
                 </span>
               </div>
 

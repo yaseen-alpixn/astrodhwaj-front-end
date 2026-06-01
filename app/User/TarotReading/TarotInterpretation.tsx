@@ -43,14 +43,44 @@ export default function TarotInterpretation({ interpretation }: TarotInterpretat
 
       {/* Interpretation paragraphs */}
       <div className="relative space-y-3.5">
-        {paragraphs.map((para, i) => (
-          <p
-            key={i}
-            className="text-[14px] font-normal leading-[1.75] text-[#3a3640]"
-          >
-            {para}
-          </p>
-        ))}
+        {paragraphs.map((para, i) => {
+          if (para.startsWith("### ")) {
+            return (
+              <h3
+                key={i}
+                className="text-[16px] font-bold text-[#6b17d7] pt-4 mt-6 first:mt-0 flex items-center gap-1.5"
+              >
+                {para.replace("### ", "")}
+              </h3>
+            );
+          }
+          if (para.startsWith("- ")) {
+            return (
+              <p
+                key={i}
+                className="text-[13.5px] font-normal leading-[1.75] text-[#3a3640] pl-5 relative before:content-['✦'] before:absolute before:left-1 before:text-[#f4c500]/80 before:text-[10px] before:top-[1px]"
+              >
+                {para.replace("- ", "")}
+              </p>
+            );
+          }
+          if (para === "---") {
+            return (
+              <hr
+                key={i}
+                className="my-5 border-[#e5e7eb]"
+              />
+            );
+          }
+          return (
+            <p
+              key={i}
+              className="text-[13.5px] font-normal leading-[1.75] text-[#3a3640]"
+            >
+              {para}
+            </p>
+          );
+        })}
       </div>
 
       {/* Footer note */}
