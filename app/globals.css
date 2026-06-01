@@ -1,1 +1,11 @@
 @import "tailwindcss";
+
+/* ── Tarot Loading Dot Animation ────────────────────────────────────────────── */
+@keyframes tarot-pulse {
+  0%, 100% { opacity: 0.2; transform: scale(0.8); }
+  50%       { opacity: 1;   transform: scale(1);   }
+}
+
+.tarot-dot {
+  animation: tarot-pulse 1.2s ease-in-out infinite;
+}
