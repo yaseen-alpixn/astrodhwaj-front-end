@@ -14,14 +14,7 @@ export type ApiResponse<T> = {
   meta?: ApiMeta | null;
 };
 
-const getApiBase = () => {
-  let base = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000/api/v1";
-  if (base && !base.includes("/api/v1")) {
-    base = base.replace(/\/$/, "") + "/api/v1";
-  }
-  return base;
-};
-export const API_BASE = getApiBase();
+export const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000/api/v1";
 export const SOCKET_BASE = process.env.NEXT_PUBLIC_SOCKET_URL || "http://localhost:8000";
 
 export type TokenScope = "user" | "astrologer" | "admin";
